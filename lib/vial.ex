@@ -1,9 +1,11 @@
 defmodule Vial do
   defmacro __using__(_) do
     quote do
-      dbg __MODULE__
-
       @before_compile Vial
+
+      @options []
+
+      import Vial
     end
   end
 
@@ -21,7 +23,13 @@ defmodule Vial do
         |> Enum.join(".")
 
       def command do
-        "mix " <> @task
+        [
+          "mix",
+          @task,
+          Enum.join(@options, " ")
+        ]
+        |> Enum.reject(& &1 == "")
+        |> Enum.join(" ")
       end
     end
   end
