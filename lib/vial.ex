@@ -1,5 +1,7 @@
 defmodule Vial do
-  def mix(command, do: block) do
-    "mix " <> command <> " " <> block
+  defmacro mix(command, do: block) do
+    options = elem(block, 2) |> Enum.join(" ")
+
+    "mix " <> command <> " " <> options
   end
 end

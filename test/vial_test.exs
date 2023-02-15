@@ -1,12 +1,14 @@
 defmodule VialTest do
   use ExUnit.Case
 
+  import Vial
+
   test "does a thing" do
     result =
-      Vial.mix "phx.new" do
-        "--binary"
+      mix "phx.new" do
+        options "--binary-id"
       end
 
-    assert result == "mix phx.new --binary"
+    assert result == "mix phx.new --binary-id"
   end
 end
