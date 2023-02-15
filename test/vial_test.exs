@@ -2,8 +2,11 @@ defmodule VialTest do
   use ExUnit.Case
 
   test "does a thing" do
-    result = Vial.mix(fn -> "hi" end)
+    result =
+      Vial.mix "phx.new" do
+        "--binary"
+      end
 
-    assert result == "hi"
+    assert result == "mix phx.new --binary"
   end
 end

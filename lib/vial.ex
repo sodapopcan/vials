@@ -1,5 +1,5 @@
 defmodule Vial do
-  def mix(func) do
-    func.()
+  def mix(command, do: block) do
+    "mix " <> command <> " " <> block
   end
 end
