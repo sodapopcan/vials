@@ -6,6 +6,6 @@ defmodule VialTest do
       use Vial
     end
 
-    assert Vials.Phx.New.task() == "phx.new"
+    assert Vials.Phx.New.command() == "mix phx.new"
   end
 end

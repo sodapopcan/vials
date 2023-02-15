@@ -20,8 +20,8 @@ defmodule Vial do
         end)
         |> Enum.join(".")
 
-      def task do
-        @task
+      def command do
+        "mix " <> @task
       end
     end
   end
