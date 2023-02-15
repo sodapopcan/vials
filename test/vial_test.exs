@@ -2,7 +2,9 @@ defmodule VialTest do
   use ExUnit.Case
   doctest Vial
 
-  test "greets the world" do
-    assert Vial.hello() == :world
+  test "does a thing" do
+    result = Vial.mix(fn -> "hi" end)
+
+    assert result == "hi"
   end
 end
