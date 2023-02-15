@@ -1,14 +1,11 @@
 defmodule VialTest do
   use ExUnit.Case
 
-  import Vial
+  test "converts the module name into the mix task" do
+    defmodule Vials.Phx.New do
+      use Vial
+    end
 
-  test "does a thing" do
-    result =
-      mix "phx.new" do
-        options "--binary-id"
-      end
-
-    assert result == "mix phx.new --binary-id"
+    assert Vials.Phx.New.task() == "phx.new"
   end
 end
