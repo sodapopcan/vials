@@ -11,14 +11,12 @@ defmodule Vial do
 
   defmacro __before_compile__(_) do
     quote do
-      module_parts = __MODULE__ |> Atom.to_string() |> String.split(".")
-
       @task \
-        Enum.reduce(module_parts, [], fn
-          "Elixir", acc -> acc
-          "Vials", acc -> acc
-          other, acc -> acc ++ [String.downcase(other)]
-        end)
+        __MODULE__
+        |> Atom.to_string()
+        |> String.replace(~r/\AElixir\.Vials\./, "")
+        |> String.split(".")
+        |> Enum.map(&String.downcase/1)
         |> Enum.join(".")
 
       def command do
