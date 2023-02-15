@@ -15,7 +15,6 @@ defmodule Vial do
 
       @task \
         Enum.reduce(module_parts, [], fn
-          "VialTest", acc -> acc
           "Elixir", acc -> acc
           "Vials", acc -> acc
           other, acc -> acc ++ [String.downcase(other)]

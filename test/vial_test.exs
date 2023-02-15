@@ -2,7 +2,7 @@ defmodule VialTest do
   use ExUnit.Case
 
   test "converts the module name into the mix task" do
-    defmodule Vials.Phx.New do
+    defmodule Elixir.Vials.Phx.New do
       use Vial
     end
 
@@ -11,7 +11,7 @@ defmodule VialTest do
 
   describe "options" do
     test "adds options" do
-      defmodule Vials.Phx.New do
+      defmodule Elixir.Vials.Phx.New do
         use Vial
 
         @options ~w[--binary-id]
