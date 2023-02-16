@@ -17,7 +17,9 @@ defmodule Vial.DSL do
       @actions [unquote(func_name) | @actions]
 
       def unquote(func_name)(vial) do
-        vial
+        path = Path.join(vial.cwd, unquote(filename))
+
+        File.write!(path, unquote(contents))
       end
     end
   end
