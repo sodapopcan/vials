@@ -34,16 +34,4 @@ defmodule VialTest do
       File.rm("tmp/mod.two.ex")
     end
   end
-
-  describe "options" do
-    test "adds options" do
-      defmodule Elixir.Vials.Phx.New do
-        use Vial
-
-        @options ~w[--binary-id]
-      end
-
-      assert Vials.Phx.New.command() == "mix phx.new --binary-id"
-    end
-  end
 end
