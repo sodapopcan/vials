@@ -6,18 +6,18 @@ defmodule VialTest do
   describe "load/1" do
     @tag :tmp_dir
     test "loads vial module from args and returns a %Vial{} struct", %{tmp_dir: tmp_dir} do
-      path = Path.join(tmp_dir, "phx.new.ex")
+      path = Path.join(tmp_dir, "mod.one.ex")
 
       File.write!(path, """
-      defmodule Elixir.Phx.New do
+      defmodule Elixir.Mod.One do
         def test, do: "test"
       end
       """)
 
-      vial = @subject.load(~w[-l #{tmp_dir} phx.new --binary-id --database sqlite])
+      vial = @subject.load(~w[-l #{tmp_dir} mod.one --binary-id --database sqlite])
 
-      assert vial.module == Phx.New
-      assert vial.task == "phx.new"
+      assert vial.module == Mod.One
+      assert vial.task == "mod.one"
       assert vial.options == [binary_id: true, database: "sqlite"]
     end
 
