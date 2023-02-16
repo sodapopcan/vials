@@ -1,16 +1,17 @@
 defmodule Vial do
-  defstruct [:task]
+  defstruct [:task, :options]
 
   def load(args) do
     # path = Path.join(path, "#{task}.ex")
 
-    {_, [task | _], _} =
+    {options, [task | _], _} =
       OptionParser.parse(args, switches: [], allow_nonexistent_atoms: true)
 
     # [{mod, _}] = Code.compile_file(path)
 
     %Vial{
-      task: task
+      task: task,
+      options: options
     }
   end
 
