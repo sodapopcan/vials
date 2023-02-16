@@ -14,8 +14,9 @@ defmodule VialTest do
       # end
       # """)
 
-      vial = @subject.load(~w[phx.new --binary-id --database sqlite])
+      vial = @subject.load(~w[-l #{tmp_dir} phx.new --binary-id --database sqlite])
 
+      assert vial.location == tmp_dir
       assert vial.task == "phx.new"
       assert vial.options == [binary_id: true, database: "sqlite"]
     end

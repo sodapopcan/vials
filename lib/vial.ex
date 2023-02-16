@@ -1,15 +1,23 @@
 defmodule Vial do
-  defstruct [:task, :options]
+  defstruct [:location, :task, :options]
 
   def load(args) do
+    {vial_options, rest} =
+      OptionParser.parse_head!(args,
+        switches: [location: :string],
+        aliases: [l: :location]
+      )
+
+    {options, [task | _], _} = foo =
+      OptionParser.parse(rest,
+        allow_nonexistent_atoms: true
+      )
+
     # path = Path.join(path, "#{task}.ex")
-
-    {options, [task | _], _} =
-      OptionParser.parse(args, switches: [], allow_nonexistent_atoms: true)
-
     # [{mod, _}] = Code.compile_file(path)
 
     %Vial{
+      location: vial_options[:location],
       task: task,
       options: options
     }
@@ -27,13 +35,12 @@ defmodule Vial do
 
   defmacro __before_compile__(_) do
     quote do
-      @task \
-        __MODULE__
-        |> Atom.to_string()
-        |> String.replace(~r/\AElixir\.Vials\./, "")
-        |> String.split(".")
-        |> Enum.map(&String.downcase/1)
-        |> Enum.join(".")
+      @task __MODULE__
+            |> Atom.to_string()
+            |> String.replace(~r/\AElixir\.Vials\./, "")
+            |> String.split(".")
+            |> Enum.map(&String.downcase/1)
+            |> Enum.join(".")
 
       def command do
         [
@@ -41,7 +48,7 @@ defmodule Vial do
           @task,
           Enum.join(@options, " ")
         ]
-        |> Enum.reject(& &1 == "")
+        |> Enum.reject(&(&1 == ""))
         |> Enum.join(" ")
       end
     end
