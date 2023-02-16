@@ -20,6 +20,19 @@ defmodule VialTest do
       assert vial.task == "phx.new"
       assert vial.options == [binary_id: true, database: "sqlite"]
     end
+
+    test "works with a default module location" do
+      File.write!("tmp/phx.new.ex", """
+      defmodule Elixir.Phx.New do
+      end
+      """)
+
+      vial = @subject.load(~w[phx.new])
+
+      assert vial.module == Phx.New
+
+      File.rm("tmp/phx.new.ex")
+    end
   end
 
   describe "options" do

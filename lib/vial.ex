@@ -14,7 +14,13 @@ defmodule Vial do
         allow_nonexistent_atoms: true
       )
 
-    location = vial_options[:location]
+    location =
+      if vial_options[:location] do
+        vial_options[:location]
+      else
+        if Mix.env() == :test, do: "tmp", else: "tmp"
+      end
+
     path = Path.join(location, "#{task}.ex")
     [{module, _}] = Code.compile_file(path)
 
