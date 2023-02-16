@@ -3,10 +3,20 @@ defmodule Vial.DSL do
 
   defmacro __using__(_) do
     quote do
+      @before_compile Vial.DSL
+
       @counter unquote(@counter)
       @actions []
 
       import Vial.DSL
+    end
+  end
+
+  defmacro __before_compile__(_) do
+    quote do
+      def actions do
+        Enum.reverse(@actions)
+      end
     end
   end
 
