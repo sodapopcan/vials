@@ -1,7 +1,24 @@
 defmodule Vial.DSLTest do
   use ExUnit.Case
 
-  describe ".create_file/1" do
+  describe "actions/0" do
+    test "returns all functions in order" do
+      defmodule Actions do
+        use Vial.DSL
+
+        create_file "hello.txt", "Hi there"
+        create_file "bye.txt", "Bye there"
+      end
+
+      actions = Actions.actions()
+
+      assert actions == [:create_file_1, :create_file_2]
+      assert function_exported?(Actions, :create_file_1, 1)
+      assert function_exported?(Actions, :create_file_2, 1)
+    end
+  end
+
+  describe "create_file/1" do
     @tag :tmp_dir
     test "creates a function called create_file_1/2", %{tmp_dir: tmp_dir} do
       vial = %Vial{cwd: tmp_dir}
@@ -12,7 +29,7 @@ defmodule Vial.DSLTest do
         create_file "hello.txt", "Hi there"
       end
 
-      CreateFile.create_file_0(vial)
+      CreateFile.create_file_1(vial)
 
       assert File.read!(Path.join(tmp_dir, "hello.txt")) == "Hi there"
     end

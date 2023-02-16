@@ -1,11 +1,24 @@
 defmodule Vial.DSL do
-  @counter 0
+  defmodule Counter do
+    use Agent
+
+    def start_link() do
+      Agent.start_link(fn -> 0 end, name: __MODULE__)
+    end
+
+    def next do
+      Agent.update(__MODULE__, & &1 + 1)
+      Agent.get(__MODULE__, & &1)
+    end
+  end
 
   defmacro __using__(_) do
+    Counter.start_link()
+
     quote do
       @before_compile Vial.DSL
 
-      @counter unquote(@counter)
+      @counter 0
       @actions []
 
       import Vial.DSL
@@ -21,14 +34,12 @@ defmodule Vial.DSL do
   end
 
   defmacro create_file(filename, contents) do
-    func_name = :"create_file_#{@counter}"
+    func_name = :"create_file_#{Counter.next()}"
 
     quote do
       @actions [unquote(func_name) | @actions]
-
       def unquote(func_name)(vial) do
         path = Path.join(vial.cwd, unquote(filename))
-
         File.write!(path, unquote(contents))
       end
     end
