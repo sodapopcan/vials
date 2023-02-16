@@ -1,12 +1,23 @@
 defmodule VialTest do
   use ExUnit.Case
 
-  test "converts the module name into the mix task" do
-    defmodule Elixir.Vials.Phx.New do
-      use Vial
-    end
+  @subject Vial
 
-    assert Vials.Phx.New.command() == "mix phx.new"
+  describe "load_module/1" do
+    @tag :tmp_dir
+    test "loads module by task name", %{tmp_dir: tmp_dir} do
+      path = Path.join(tmp_dir, "phx.new.ex")
+
+      File.write!(path, """
+      defmodule Foo do
+        def test, do: "test"
+      end
+      """)
+
+      mod = @subject.load_module("phx.new", tmp_dir)
+
+      assert mod.test() == "test"
+    end
   end
 
   describe "options" do

@@ -1,4 +1,12 @@
 defmodule Vial do
+  def load_module(task, path) do
+    path = Path.join(path, "#{task}.ex")
+
+    [{mod, _}] = Code.compile_file(path)
+
+    mod
+  end
+
   defmacro __using__(_) do
     quote do
       @before_compile Vial
