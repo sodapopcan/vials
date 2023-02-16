@@ -1,5 +1,5 @@
 defmodule Vial do
-  defstruct [:module, :task, :options]
+  defstruct [:module, :cwd, :task, :options]
 
   def load(args) do
     {vial_options, rest} =
@@ -26,6 +26,7 @@ defmodule Vial do
 
     %Vial{
       module: module,
+      cwd: location,
       task: task,
       options: options
     }

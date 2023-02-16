@@ -17,6 +17,7 @@ defmodule VialTest do
       vial = @subject.load(~w[-l #{tmp_dir} mod.one --binary-id --database sqlite])
 
       assert vial.module == Mod.One
+      assert vial.cwd == tmp_dir
       assert vial.task == "mod.one"
       assert vial.options == [binary_id: true, database: "sqlite"]
     end
