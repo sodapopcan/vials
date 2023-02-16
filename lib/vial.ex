@@ -1,5 +1,5 @@
 defmodule Vial do
-  defstruct [:location, :task, :options]
+  defstruct [:module, :location, :task, :options]
 
   def load(args) do
     {vial_options, rest} =
@@ -8,16 +8,18 @@ defmodule Vial do
         aliases: [l: :location]
       )
 
-    {options, [task | _], _} = foo =
+    {options, [task | _], _} =
       OptionParser.parse(rest,
         allow_nonexistent_atoms: true
       )
 
-    # path = Path.join(path, "#{task}.ex")
-    # [{mod, _}] = Code.compile_file(path)
+    location = vial_options[:location]
+    path = Path.join(location, "#{task}.ex")
+    [{mod, _}] = Code.compile_file(path)
 
     %Vial{
-      location: vial_options[:location],
+      module: mod,
+      location: location,
       task: task,
       options: options
     }
