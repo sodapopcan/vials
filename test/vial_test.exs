@@ -22,16 +22,16 @@ defmodule VialTest do
     end
 
     test "works with a default module location" do
-      File.write!("tmp/phx.new.ex", """
-      defmodule Elixir.Phx.New do
+      File.write!("tmp/mod.two.ex", """
+      defmodule Elixir.Mod.Two do
       end
       """)
 
-      vial = @subject.load(~w[phx.new])
+      vial = @subject.load(~w[mod.two])
 
-      assert vial.module == Phx.New
+      assert vial.module == Mod.Two
 
-      File.rm("tmp/phx.new.ex")
+      File.rm("tmp/mod.two.ex")
     end
   end
 
