@@ -1,5 +1,5 @@
 defmodule Vial do
-  defstruct [:module, :location, :task, :options]
+  defstruct [:module, :task, :options]
 
   def load(args) do
     {vial_options, rest} =
@@ -15,11 +15,10 @@ defmodule Vial do
 
     location = vial_options[:location]
     path = Path.join(location, "#{task}.ex")
-    [{mod, _}] = Code.compile_file(path)
+    [{module, _}] = Code.compile_file(path)
 
     %Vial{
-      module: mod,
-      location: location,
+      module: module,
       task: task,
       options: options
     }
