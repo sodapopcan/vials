@@ -10,6 +10,7 @@ defmodule Vial do
 
     {options, [task | _], _} =
       OptionParser.parse(rest,
+        switches: [],
         allow_nonexistent_atoms: true
       )
 
