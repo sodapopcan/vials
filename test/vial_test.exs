@@ -3,20 +3,20 @@ defmodule VialTest do
 
   @subject Vial
 
-  describe "load_module/1" do
+  describe "load/1" do
     @tag :tmp_dir
-    test "loads module by task name", %{tmp_dir: tmp_dir} do
-      path = Path.join(tmp_dir, "phx.new.ex")
+    test "loads vial module from args and returns a %Vial{} struct", %{tmp_dir: tmp_dir} do
+      # path = Path.join(tmp_dir, "phx.new.ex")
 
-      File.write!(path, """
-      defmodule Foo do
-        def test, do: "test"
-      end
-      """)
+      # File.write!(path, """
+      # defmodule Elixir.Foo do
+      #   def test, do: "test"
+      # end
+      # """)
 
-      mod = @subject.load_module("phx.new", tmp_dir)
+      vial = @subject.load(["phx.new"])
 
-      assert mod.test() == "test"
+      assert vial.task == "phx.new"
     end
   end
 

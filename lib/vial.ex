@@ -1,10 +1,17 @@
 defmodule Vial do
-  def load_module(task, path) do
-    path = Path.join(path, "#{task}.ex")
+  defstruct [:task]
 
-    [{mod, _}] = Code.compile_file(path)
+  def load(args) do
+    # path = Path.join(path, "#{task}.ex")
 
-    mod
+    {_, [task | _], _} =
+      OptionParser.parse(args, switches: [], allow_nonexistent_atoms: true)
+
+    # [{mod, _}] = Code.compile_file(path)
+
+    %Vial{
+      task: task
+    }
   end
 
   defmacro __using__(_) do
