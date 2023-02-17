@@ -30,5 +30,14 @@ defmodule Vial.VariablesTest do
 
       assert result == "defmodule ModuleCase do"
     end
+
+    test "filter: underscore" do
+      variables = %{var: "SnakeCase"}
+      string = "def {$var|underscore} do"
+
+      result = @subject.interpolate(variables, string)
+
+      assert result == "def snake_case do"
+    end
   end
 end

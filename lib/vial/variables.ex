@@ -21,4 +21,8 @@ defmodule Vial.Variables do
   defp apply_filter("camelize", variable) do
     Macro.camelize(variable)
   end
+
+  defp apply_filter("underscore", variable) do
+    Macro.underscore(variable)
+  end
 end
