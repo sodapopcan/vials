@@ -57,4 +57,24 @@ defmodule VialTest do
       File.rm("tmp/mod.two.ex")
     end
   end
+
+  describe "run/1" do
+    test "does it" do
+      path = Path.join("tmp", "run1.ex")
+
+      File.write!(path, """
+      defmodule Elixir.Run1 do
+        use Vial
+      end
+      """)
+
+      Vial.run(["run1", "example"])
+
+      path = Path.join("tmp", "example.txt")
+
+      assert File.read!(path) == "example"
+
+      File.rm path
+    end
+  end
 end

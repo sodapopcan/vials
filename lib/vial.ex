@@ -1,6 +1,20 @@
 defmodule Vial do
   defstruct [:module_location, :module, :cwd, :task, :task_args, :options, :args, :variables]
 
+  defmodule Args do
+    use Agent
+
+    def start_link(args) do
+      Agent.start_link(fn -> args end, name: __MODULE__)
+    end
+
+    def get do
+      Agent.get(__MODULE__, & &1)
+    end
+  end
+
+  defdelegate start_link(args), to: Args
+
   def parse(args) do
     {vial_options, rest} =
       OptionParser.parse_head!(args,
@@ -46,6 +60,23 @@ defmodule Vial do
     [{module, _}] = Code.compile_file(path)
 
     %{vial | module: module}
+  end
+
+  def run(args) do
+    vial = Vial.parse(args)
+
+    Vial.start_link(vial.args)
+
+    Mix.Task.run("example")
+    Vial.load(vial)
+
+    # run_actions(vial)
+  end
+
+  defmacro __using__(_) do
+    quote do
+      use Vial.DSL, Args.get()
+    end
   end
 
 #   def run_actions(vial) do
