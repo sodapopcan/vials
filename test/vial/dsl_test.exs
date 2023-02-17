@@ -47,5 +47,20 @@ defmodule Vial.DSLTest do
 
       assert File.read!(Path.join(tmp_dir, "hello.txt")) == "Hi there"
     end
+
+    @tag :tmp_dir
+    test "interpolates variables in filename", %{tmp_dir: tmp_dir} do
+      vial = %Vial{cwd: tmp_dir, variables: %{:"$1" => "some_project"}}
+
+      defmodule CreateFileVariables do
+        use Vial.DSL
+
+        create_file "{$1}_file.txt", "Hi there"
+      end
+
+      CreateFileVariables.create_file_1(vial)
+
+      assert File.read!(Path.join(tmp_dir, "some_project_file.txt")) == "Hi there"
+    end
   end
 end
