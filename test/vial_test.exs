@@ -14,14 +14,14 @@ defmodule VialTest do
       end
       """)
 
-      vial = @subject.load(~w[-l #{tmp_dir} mod.one some-arg --binary-id --database sqlite])
+      vial = @subject.load(~w[-l #{tmp_dir} mod.one some-arg some-other-arg --binary-id --database sqlite])
 
       assert vial.module == Mod.One
       assert vial.cwd == File.cwd!()
       assert vial.task == "mod.one"
-      assert vial.task_args == ["some-arg"]
+      assert vial.task_args == ["some-arg", "some-other-arg"]
       assert vial.options == [binary_id: true, database: "sqlite"]
-      assert vial.variables == %{:"1" => "some-arg", binary_id: true, database: "sqlite"}
+      assert vial.variables == %{:"1" => "some-arg", :"2" => "some-other-arg", binary_id: true, database: "sqlite"}
     end
 
     test "works with a default module location" do
