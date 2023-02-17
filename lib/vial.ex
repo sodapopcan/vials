@@ -29,7 +29,7 @@ defmodule Vial do
     variables =
       task_args
       |> Enum.with_index()
-      |> Enum.map(fn {arg, index} -> {:"$#{index + 1}", arg} end)
+      |> Enum.map(fn {arg, index} -> {:"#{index + 1}", arg} end)
       |> Enum.into(%{})
       |> Map.merge(Enum.into(options, %{}))
 
