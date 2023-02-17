@@ -1,5 +1,5 @@
-defmodule Vial.Interpolator do
-  def run(variables, string) do
+defmodule Vial.Variables do
+  def interpolate(variables, string) do
     matches = Regex.scan(~r/\{\$([[:word:]]+)\}/, string)
     replace(variables, string, matches)
   end
