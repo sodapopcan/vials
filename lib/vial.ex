@@ -26,7 +26,7 @@ defmodule Vial do
 
     %Vial{
       module: module,
-      cwd: location,
+      cwd: File.cwd!(),
       task: task,
       options: options
     }
