@@ -18,6 +18,20 @@ defmodule Vial.DSLTest do
     end
   end
 
+  describe "cd/1" do
+    vial = %Vial{cwd: "/"}
+
+    defmodule CD do
+      use Vial.DSL
+
+      cd "/some/other/dir"
+    end
+
+    vial = CD.cd_1(vial)
+
+    assert vial.cwd == "/some/other/dir"
+  end
+
   describe "create_file/1" do
     @tag :tmp_dir
     test "creates a function called create_file_1/2", %{tmp_dir: tmp_dir} do
