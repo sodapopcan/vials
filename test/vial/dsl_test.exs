@@ -49,13 +49,13 @@ defmodule Vial.DSLTest do
     end
 
     @tag :tmp_dir
-    test "interpolates variables in filename", %{tmp_dir: tmp_dir} do
-      vial = %Vial{cwd: tmp_dir, variables: %{:"1" => "some_project"}}
+    test "sets args", %{tmp_dir: tmp_dir} do
+      vial = %Vial{cwd: tmp_dir}
 
       defmodule CreateFileVariables do
-        use Vial.DSL
+        use Vial.DSL, %{_1: "some_project"}
 
-        create_file "{$1}_file.txt", "Hi there"
+        create_file "#{args[:_1]}_file.txt", "Hi there"
       end
 
       CreateFileVariables.create_file_1(vial)
