@@ -1,5 +1,5 @@
 defmodule Vial do
-  defstruct [:module, :cwd, :task, :options]
+  defstruct [:module, :cwd, :task, :task_args, :options]
 
   def load(args) do
     {vial_options, rest} =
@@ -8,11 +8,13 @@ defmodule Vial do
         aliases: [l: :location]
       )
 
-    {options, [task | _], _} =
+    {options, task_data, _} =
       OptionParser.parse(rest,
         switches: [],
         allow_nonexistent_atoms: true
       )
+
+    [task | task_args] = task_data
 
     location =
       if vial_options[:location] do
@@ -28,6 +30,7 @@ defmodule Vial do
       module: module,
       cwd: File.cwd!(),
       task: task,
+      task_args: task_args,
       options: options
     }
   end

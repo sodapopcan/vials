@@ -14,11 +14,12 @@ defmodule VialTest do
       end
       """)
 
-      vial = @subject.load(~w[-l #{tmp_dir} mod.one --binary-id --database sqlite])
+      vial = @subject.load(~w[-l #{tmp_dir} mod.one some-arg --binary-id --database sqlite])
 
       assert vial.module == Mod.One
       assert vial.cwd == File.cwd!()
       assert vial.task == "mod.one"
+      assert vial.task_args == ["some-arg"]
       assert vial.options == [binary_id: true, database: "sqlite"]
     end
 
