@@ -21,5 +21,14 @@ defmodule Vial.VariablesTest do
 
       assert result == "My id: some-binary-id"
     end
+
+    test "filter: module" do
+      variables = %{:"1" => "module_case"}
+      string = "defmodule {$1|camelize} do"
+
+      result = @subject.interpolate(variables, string)
+
+      assert result == "defmodule ModuleCase do"
+    end
   end
 end
