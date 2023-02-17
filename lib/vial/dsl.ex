@@ -51,8 +51,8 @@ defmodule Vial.DSL do
     quote do
       @actions [unquote(func_name) | @actions]
       def unquote(func_name)(vial) do
-        f = Vial.Interpolator.run(vial.variables, unquote(filename))
-        path = Path.join(vial.cwd, f)
+        filename = Vial.Interpolator.run(vial.variables, unquote(filename))
+        path = Path.join(vial.cwd, filename)
         File.write!(path, unquote(contents))
       end
     end
