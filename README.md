@@ -1,10 +1,56 @@
 # Vial
 
-Add it to the mix!
+Vials of whathaveyou to add to the mix
 
 ## About
 
-Vial is a wrapper around mix to do stuff and whatnot.
+Vial is a mix task that wraps other mix tasks to alter or enhance their
+behaviour.
+
+For example, here is a vial to add to `phx.new`:
+
+```elixir
+defmodule Vials.Phx.New do
+  use Vial
+
+  cd "{$1}"
+
+  remove_file "priv/static/favicon.ico"
+
+  change_file "lib/{$1}_web/layouts/root.html.heex", fn contents ->
+    remove_lines(contents, 10..30)
+  end
+end
+```
+
+By default, Vial searches for vials in `~/.vials` then `~/vials`.   You can set
+you own path with `export VIAL_LOOKUP_PATH=path/to/your/vial/directory`
+
+```elixir
+# ~/.vials/phx.new.ex
+defmodule Vials.Phx.New do
+  use Vial
+
+  @options [binary_id: true]
+
+  cd "{$1}"
+
+  create_file "{$1/context.ex}" do
+  """
+  defmodule {$1|camelize}.Schema do
+    defmacro __using__(_) do
+      use Ecto.Schema
+
+      @primary_key {:id, :binary_id, autogenerate: true}
+      @foreign_key_type :binary_id
+    end
+  end
+  """
+  end
+end
+```
+
+Heres are some vials around 
 
 
 For example, in phx:
