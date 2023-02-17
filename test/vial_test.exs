@@ -50,7 +50,9 @@ defmodule VialTest do
       end
       """)
 
-      vial = @subject.load(~w[mod.two])
+      vial =
+        %Vial{module_location: "tmp", task: "mod.two"}
+        |> @subject.load()
 
       assert vial.module == Mod.Two
 
@@ -59,22 +61,49 @@ defmodule VialTest do
   end
 
   describe "run/1" do
-    test "does it" do
-      path = Path.join("tmp", "run1.ex")
+    test "runs the associated task" do
+      defmodule Elixir.Mix.Tasks.Run1 do
+        def run(_) do
+          File.write!(Path.join("tmp", "example.txt"), "test output")
+        end
+      end
 
+      path = Path.join("tmp", "run1.ex")
       File.write!(path, """
-      defmodule Elixir.Run1 do
+      defmodule Vials.Run1 do
         use Vial
       end
       """)
 
-      Vial.run(["run1", "example"])
+      Vial.run(["run1"])
 
       path = Path.join("tmp", "example.txt")
 
-      assert File.read!(path) == "example"
+      assert File.read!(path) == "test output"
 
-      File.rm path
+      File.rm(path)
+    end
+
+    test "create_file" do
+      defmodule Elixir.Mix.Tasks.Create.File do
+        def run(_), do: nil
+      end
+
+      path = Path.join("tmp", "create.file.ex")
+      File.write!(path, """
+      defmodule Vials.Create.File do
+        use Vial
+
+        create_file "#\{args[:_1]}_file.txt", "I'm some content"
+      end
+      """)
+
+      Vial.run(["create.file", "file_prefix"])
+
+      created_file = Path.join("tmp", "file_prefix_file.txt")
+      assert File.read!(created_file) == "I'm some content"
+
+      File.rm(created_file)
     end
   end
 end

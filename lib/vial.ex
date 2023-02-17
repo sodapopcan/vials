@@ -67,10 +67,13 @@ defmodule Vial do
 
     Vial.start_link(vial.args)
 
-    Mix.Task.run("example")
-    Vial.load(vial)
+    vial = Vial.load(vial)
 
-    # run_actions(vial)
+    Mix.Task.run(vial.task)
+
+    for action <- vial.module.actions() do
+      apply(vial.module, action, [vial])
+    end
   end
 
   defmacro __using__(_) do
@@ -78,19 +81,4 @@ defmodule Vial do
       use Vial.DSL, Args.get()
     end
   end
-
-#   def run_actions(vial) do
-#     do_run_actions(vial, vial.module.actions())
-#   end
-
-#   def do_run_actions(vial, []), do: vial
-
-#   def do_run_actions(vial, [action | actions]) do
-#     vial = run_action(vial, action)
-#     do_run_actions(vial, actions)
-#   end
-
-#   def run_action(vial, {:create_file, [filename, contents]}) do
-#     # File.write!(Path.join(vial.cwd, ))
-#   end
 end
