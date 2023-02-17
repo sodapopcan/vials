@@ -21,6 +21,7 @@ defmodule VialTest do
       assert vial.task == "mod.one"
       assert vial.task_args == ["some-arg"]
       assert vial.options == [binary_id: true, database: "sqlite"]
+      assert vial.variables == %{:"$1" => "some-arg", binary_id: true, database: "sqlite"}
     end
 
     test "works with a default module location" do

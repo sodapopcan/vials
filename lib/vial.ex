@@ -1,5 +1,5 @@
 defmodule Vial do
-  defstruct [:module, :cwd, :task, :task_args, :options]
+  defstruct [:module, :cwd, :task, :task_args, :options, :variables]
 
   def load(args) do
     {vial_options, rest} =
@@ -26,12 +26,20 @@ defmodule Vial do
     path = Path.join(location, "#{task}.ex")
     [{module, _}] = Code.compile_file(path)
 
+    variables =
+      task_args
+      |> Enum.with_index()
+      |> Enum.map(fn {arg, index} -> {:"$#{index + 1}", arg} end)
+      |> Enum.into(%{})
+      |> Map.merge(Enum.into(options, %{}))
+
     %Vial{
       module: module,
       cwd: File.cwd!(),
       task: task,
       task_args: task_args,
-      options: options
+      options: options,
+      variables: variables
     }
   end
 
