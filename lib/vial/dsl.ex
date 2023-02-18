@@ -15,6 +15,7 @@ defmodule Vial.DSL do
 
   defp add(func) do
     Agent.update(__MODULE__, &[func | &1])
+
     func
   end
 
@@ -43,7 +44,7 @@ defmodule Vial.DSL do
         {:ok, edits}
       else
         [] -> {:error, "Globs must match exactly one file"}
-        [_|_] -> {:error, "Globs must match exactly one file"}
+        [_ | _] -> {:error, "Globs must match exactly one file"}
         error -> error
       end
     end)
