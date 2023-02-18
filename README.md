@@ -10,21 +10,44 @@ behaviour.
 For example, here is a vial to add to `phx.new`:
 
 ```elixir
+# ~/.vials/phx.new.ex
 defmodule Vials.Phx.New do
   use Vial
 
   cd "{$1}"
 
   remove_file "priv/static/favicon.ico"
+end
+``` 
 
-  change_file "lib/{$1}_web/layouts/root.html.heex", fn contents ->
-    remove_lines(contents, 10..30)
-  end
+Run it with:
+
+```bash
+$ mix vial phx.new my_project
+```
+
+This will run `mix phx.new my_project` as normal, then `cd my_project` and
+remove the favicon.
+
+Vial files are named after their mix task name and saved in `~/.vials`,
+`~/vials`, or `$VIAL_PATH` (see [options](#options) for more).
+
+Positional arguments passed to the wrapped task are available as `@1`, `@2`, and
+so on whereas options are available as `@option_name`.
+
+For example:
+
+```elixir
+# ~/.vials/phx.new.ex
+defmodule Vials.Phx.New do
+  use Vial
+
+  cd if @module, do: underscore(@module), else: @_id
+
+
 end
 ```
 
-By default, Vial searches for vials in `~/.vials` then `~/vials`.   You can set
-you own path with `export VIAL_LOOKUP_PATH=path/to/your/vial/directory`
 
 ```elixir
 # ~/.vials/phx.new.ex
@@ -35,9 +58,9 @@ defmodule Vials.Phx.New do
 
   cd "{$1}"
 
-  create_file "{$1/context.ex}" do
+  create_file "#{@_1}/context.ex" do
   """
-  defmodule {$1|camelize}.Schema do
+  defmodule {camelize(@1)}.Schema do
     defmacro __using__(_) do
       use Ecto.Schema
 
@@ -57,7 +80,12 @@ For example, in phx:
 
 
 ```bash
-$ mix vial phx.new --vial ~/path/to/some/template/
+$ mix vial -p /some/other/location/alternate-phx-new.ex mix phx.new
+```
+
+
+```bash
+$ mix vial ~/path/to/some/template/ phx.new 
 ```
 
 a .vial file:
