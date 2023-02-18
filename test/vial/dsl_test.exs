@@ -1,19 +1,22 @@
 defmodule Vial.DSLTest do
   use ExUnit.Case
 
+  @subject Vial.DSL
+
+  setup do
+    start_supervised(Vial.DSL)
+    :ok
+  end
+
   describe "cd/1" do
-    vial = %Vial{cwd: "/"}
+    test "returns vial struct with new cwd" do
+      vial = %Vial{cwd: "/"}
 
-    defmodule CD do
-      use Vial.DSL
+      func = @subject.cd("/some/other/dir")
+      vial = func.(vial)
 
-      cd "/some/other/dir"
+      assert vial.cwd == "/some/other/dir"
     end
-
-    [func] = CD.actions()
-    vial = func.(vial)
-
-    assert vial.cwd == "/some/other/dir"
   end
 
   describe "create_file/1" do
@@ -27,7 +30,7 @@ defmodule Vial.DSLTest do
         create_file "hello.txt", "Hi there"
       end
 
-      [func] = CreateFile.actions()
+      func = @subject.create_file("hello.txt", "Hi there")
       func.(vial)
 
       assert File.read!(Path.join(tmp_dir, "hello.txt")) == "Hi there"

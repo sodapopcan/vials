@@ -19,8 +19,13 @@ defmodule Vial.DSL do
     end
   end
 
+  def start_link(_) do
+    Agent.start_link(fn -> [] end, name: Vial.DSL)
+  end
+
   defp add(func) do
     Agent.update(__MODULE__, &[func | &1])
+    func
   end
 
   def cd(path) do
