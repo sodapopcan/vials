@@ -113,7 +113,7 @@ defmodule VialTest do
 
       path = Path.join("tmp", "conditional.create.file.ex")
       File.write!(path, """
-      defmodule Vials.Create.File do
+      defmodule Vials.Conditional.Create.File do
         use Vial
 
         if @args[:arg_not_passed] do
