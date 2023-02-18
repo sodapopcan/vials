@@ -1,5 +1,14 @@
 defmodule Vial do
-  defstruct [:module_location, :module, :cwd, :task, :task_args, :options, :args, :variables]
+  defstruct [
+    :module_location,
+    :module,
+    :cwd,
+    :task,
+    :task_args,
+    :options,
+    :args,
+    :variables
+  ]
 
   defmodule Args do
     use Agent
