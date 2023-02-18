@@ -12,14 +12,14 @@ defmodule VialTest do
         )
 
       assert vial.module_location == tmp_dir
-      assert vial.cwd == File.cwd!()
+      assert vial.cwd == "tmp"
       assert vial.task == "mod.one"
       assert vial.task_args == ["some-arg", "some-other-arg"]
       assert vial.options == [binary_id: true, database: "sqlite"]
 
       assert vial.args == %{
-               :"1" => "some-arg",
-               :"2" => "some-other-arg",
+               :_1 => "some-arg",
+               :_2 => "some-other-arg",
                binary_id: true,
                database: "sqlite"
              }
