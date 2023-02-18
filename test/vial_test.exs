@@ -95,7 +95,7 @@ defmodule VialTest do
       defmodule Vials.Create.File do
         use Vial
 
-        create_file @args[:_1] <> "_file.txt", "I'm some content"
+        create_file "#\{@args[:_1]}_file.txt", "I'm some content"
       end
       """)
 
