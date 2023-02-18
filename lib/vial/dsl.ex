@@ -36,7 +36,8 @@ defmodule Vial.DSL do
     add(fn vial ->
       path = Path.join(vial.cwd, filename)
 
-      with {:ok, contents} <- File.read(path),
+      with [filename] <- Path.wildcard(path),
+           {:ok, contents} <- File.read(filename),
            edits <- func.(contents),
            :ok <- File.write(path, edits) do
         {:ok, edits}

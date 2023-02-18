@@ -56,8 +56,20 @@ defmodule Vial.DSLTest do
       assert contents == edits
     end
 
-    test "returns errors" do
+    @tag :tmp_dir
+    test "accepts globs", %{tmp_dir: tmp_dir} do
       vial = %Vial{cwd: tmp_dir}
+      path = Path.join(tmp_dir, "20200823000000_some_file.txt")
+      File.write(path, "")
+
+      func = @subject.edit_file("*_some_file.txt", fn _ -> "edited" end)
+      {:ok, edits} = func.(vial)
+
+      assert edits == "edited"
+    end
+
+    test "returns errors" do
+      vial = %Vial{cwd: "./"}
 
       func = @subject.edit_file("non-existent-file.txt", &Function.identity/1)
 
