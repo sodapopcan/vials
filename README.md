@@ -7,14 +7,14 @@ Vials of whathaveyou to add to the mix
 Vial is a mix task that wraps other mix tasks to alter or enhance their
 behaviour.
 
-For example, here is a vial to add to `phx.new`:
+For example, here is a vial around `phx.new`:
 
 ```elixir
 # ~/.vials/phx.new.ex
 defmodule Vials.Phx.New do
   use Vial
 
-  cd "{$1}"
+  cd @arg[:_1]
 
   remove_file "priv/static/favicon.ico"
 end
@@ -42,7 +42,7 @@ For example:
 defmodule Vials.Phx.New do
   use Vial
 
-  cd if @module, do: underscore(@module), else: @_id
+  cd if @args[:module], do: underscore(@args.module), else: @args._1
 
 
 end
