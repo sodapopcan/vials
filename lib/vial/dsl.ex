@@ -3,11 +3,11 @@ defmodule Vial.DSL do
 
   defmacro __using__(_) do
     quote do
-      @before_compile unquote(Vial.DSL)
+      @before_compile Vial.DSL
 
-      Agent.start_link(fn -> [] end, name: unquote(Vial.DSL))
+      Vial.DSL.start_link([])
 
-      import unquote(Vial.DSL)
+      import Vial.DSL
     end
   end
 
