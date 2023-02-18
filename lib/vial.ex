@@ -8,7 +8,8 @@ defmodule Vial do
     :raw_task_args,
     :options,
     :args,
-    :variables
+    :variables,
+    errors: []
   ]
 
   defmodule Args do
