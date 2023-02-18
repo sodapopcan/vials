@@ -19,15 +19,37 @@ defmodule Vial.DSLTest do
     end
   end
 
-  describe "create_file/1" do
+  describe "create_file/2" do
     @tag :tmp_dir
-    test "creates a function called create_file_1/2", %{tmp_dir: tmp_dir} do
+    test "creates a file", %{tmp_dir: tmp_dir} do
       vial = %Vial{cwd: tmp_dir}
 
       func = @subject.create_file("hello.txt", "Hi there")
       func.(vial)
 
       assert File.read!(Path.join(tmp_dir, "hello.txt")) == "Hi there"
+    end
+  end
+
+  describe "edit_file/2" do
+    @tag :tmp_dir
+    test "changes a file", %{tmp_dir: tmp_dir} do
+      vial = %Vial{cwd: tmp_dir}
+
+      path = Path.join(tmp_dir, "foo.txt")
+      File.write(path, "I'm the first line\n")
+
+      func =
+        @subject.edit_file("foo.txt", fn contents ->
+          contents <> "I'm the second line\n"
+        end)
+
+      func.(vial)
+
+      assert File.read!(path) == """
+      I'm the first line
+      I'm the second line
+      """
     end
   end
 end

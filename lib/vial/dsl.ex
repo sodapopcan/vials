@@ -31,4 +31,20 @@ defmodule Vial.DSL do
       File.write!(path, contents)
     end)
   end
+
+  def edit_file(filename, func) do
+    add(fn vial ->
+      path = Path.join(vial.cwd, filename)
+
+      case File.read(path) do
+        {:ok, contents} ->
+          edits = func.(contents)
+          File.write(path, edits)
+
+        {:error, error} ->
+          error
+      end
+
+    end)
+  end
 end
