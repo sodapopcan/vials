@@ -44,12 +44,16 @@ defmodule Vial.DSLTest do
           contents <> "I'm the second line\n"
         end)
 
-      func.(vial)
+      {:ok, edits} = func.(vial)
 
-      assert File.read!(path) == """
+      contents = File.read!(path)
+
+      assert contents == """
       I'm the first line
       I'm the second line
       """
+
+      assert contents == edits
     end
   end
 end
