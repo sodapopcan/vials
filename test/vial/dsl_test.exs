@@ -3,6 +3,9 @@ defmodule Vial.DSLTest do
 
   describe "actions/0" do
     test "returns all functions in order" do
+      # TODO: Write a better test for this.
+      # Right now it's relyingon System.unique_integer([:positive]) always
+      # returning a higher number.
       defmodule Actions do
         use Vial.DSL
 
