@@ -10,11 +10,14 @@ defmodule Vial.DSLTest do
         create_file "bye.txt", "Bye there"
       end
 
-      actions = Actions.actions()
+      [int_1, int_2] =
+        Actions.actions()
+        |> Enum.map(&Atom.to_string/1)
+        |> Enum.map(&(Regex.run(~r/[[:digit:]]+\z/, &1)))
+        |> List.flatten()
+        |> Enum.map(&String.to_integer/1)
 
-      assert actions == [:create_file_1, :create_file_2]
-      assert function_exported?(Actions, :create_file_1, 1)
-      assert function_exported?(Actions, :create_file_2, 1)
+      assert int_1 < int_2
     end
   end
 
@@ -27,7 +30,8 @@ defmodule Vial.DSLTest do
       cd "/some/other/dir"
     end
 
-    vial = CD.cd_1(vial)
+    [func] = CD.actions()
+    vial = apply(CD, func, [vial])
 
     assert vial.cwd == "/some/other/dir"
   end
@@ -43,7 +47,8 @@ defmodule Vial.DSLTest do
         create_file "hello.txt", "Hi there"
       end
 
-      CreateFile.create_file_1(vial)
+      [func] = CreateFile.actions()
+      apply(CreateFile, func, [vial])
 
       assert File.read!(Path.join(tmp_dir, "hello.txt")) == "Hi there"
     end
@@ -58,7 +63,8 @@ defmodule Vial.DSLTest do
         create_file "#{@args[:_1]}_file.txt", "Hi there"
       end
 
-      CreateFileVariables.create_file_1(vial)
+      [func] = CreateFileVariables.actions()
+      apply(CreateFileVariables, func, [vial])
 
       assert File.read!(Path.join(tmp_dir, "some_project_file.txt")) == "Hi there"
     end
