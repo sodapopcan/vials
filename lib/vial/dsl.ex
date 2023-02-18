@@ -1,26 +1,16 @@
 defmodule Vial.DSL do
   use Agent
 
-  defmacro __using__(_) do
-    quote do
-      @before_compile Vial.DSL
-
-      Vial.DSL.start_link([])
-
-      import Vial.DSL
-    end
-  end
-
-  defmacro __before_compile__(_) do
-    quote do
-      def actions do
-        Agent.get(Vial.DSL, & &1) |> Enum.reverse()
-      end
-    end
-  end
+  def start_link, do: start_link(nil)
 
   def start_link(_) do
-    Agent.start_link(fn -> [] end, name: Vial.DSL)
+    Agent.start_link(fn -> [] end, name: __MODULE__)
+  end
+
+  def run_actions(vial) do
+    for action <- Agent.get(__MODULE__, & &1) do
+      action.(vial)
+    end
   end
 
   defp add(func) do

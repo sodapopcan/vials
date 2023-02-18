@@ -80,15 +80,14 @@ defmodule Vial do
 
     Mix.Task.run(vial.task)
 
-    for action <- vial.module.actions() do
-      action.(vial)
-    end
+    Vial.DSL.run_actions(vial)
   end
 
   defmacro __using__(_) do
     quote do
       @args Args.get()
-      use Vial.DSL
+      Vial.DSL.start_link()
+      import Vial.DSL, except: [start_link: 1, start_link: 2]
     end
   end
 end
