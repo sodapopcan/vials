@@ -40,7 +40,7 @@ defmodule Vial do
     args =
       task_args
       |> Enum.with_index()
-      |> Enum.map(fn {arg, index} -> {:"#{index + 1}", arg} end)
+      |> Enum.map(fn {arg, index} -> {:"_#{index + 1}", arg} end)
       |> Enum.into(%{})
       |> Map.merge(Enum.into(options, %{}))
 
@@ -78,7 +78,8 @@ defmodule Vial do
 
   defmacro __using__(_) do
     quote do
-      use Vial.DSL, Args.get()
+      @args Args.get()
+      use Vial.DSL, @args
     end
   end
 end

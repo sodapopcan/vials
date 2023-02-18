@@ -21,7 +21,7 @@ defmodule Vial.DSL do
       @counter 0
       @actions []
 
-      def args, do: unquote(args)
+      @args unquote(args)
 
       import Vial.DSL
     end

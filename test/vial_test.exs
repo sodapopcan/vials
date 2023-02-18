@@ -94,13 +94,13 @@ defmodule VialTest do
       defmodule Vials.Create.File do
         use Vial
 
-        create_file "#\{args[:_1]}_file.txt", "I'm some content"
+        create_file @args[:_1] <> "_file.txt", "I'm some content"
       end
       """)
 
       Vial.run(["create.file", "file_prefix"])
 
-      created_file = Path.join("tmp", "file_prefix_file.txt")
+      created_file = "file_prefix_file.txt"
       assert File.read!(created_file) == "I'm some content"
 
       File.rm(created_file)
