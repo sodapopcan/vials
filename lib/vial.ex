@@ -43,7 +43,11 @@ defmodule Vial do
       if vial_options[:location] do
         vial_options[:location]
       else
-        if Mix.env() == :test, do: "tmp", else: "tmp"
+        if Mix.env() == :test do
+          "tmp"
+        else
+          Path.join(System.user_home(), "vials")
+        end
       end
 
     args =
