@@ -102,4 +102,35 @@ defmodule Vial.DSLTest do
       assert {:error, _} = File.read(path)
     end
   end
+
+  describe "add_dep/1" do
+    @tag :tmp_dir
+    test "adds deps to deps list in mix.exs", %{tmp_dir: tmp_dir} do
+      vial = %Vial{cwd: tmp_dir}
+      path = Path.join(tmp_dir, "mix.exs")
+      File.write(path, """
+        defp deps do
+          [
+            {:one, "~> 0.0.3"},
+            {:two, "~> 1.1.1"},
+            {:three, "~> 1.1.1"}
+          ]
+        end
+      """)
+
+      func = @subject.add_dep({:four, "~> 0.0.1"})
+      func.(vial)
+
+      assert File.read!(path) == """
+        defp deps do
+          [
+            {:one, "~> 0.0.3"},
+            {:two, "~> 1.1.1"},
+            {:three, "~> 1.1.1"},
+            {:four, "~> 0.0.1"}
+          ]
+        end
+      """
+    end
+  end
 end

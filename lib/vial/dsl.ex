@@ -57,4 +57,17 @@ defmodule Vial.DSL do
       File.rm(path)
     end)
   end
+
+  def add_dep(dep) do
+    add(fn vial ->
+      path = Path.join(vial.cwd, "mix.exs")
+
+      with {:ok, contents} <- File.read(path) do
+        [indent, last_dep] = Regex.run(~r/defp deps do.*\n(\s+)(\{:.*?})\n/s, contents, capture: :all_but_first)
+        replacement = last_dep <> ",\n#{indent}" <> Vial.Util.dep_to_string(dep)
+        contents = String.replace(contents, last_dep, replacement)
+        File.write(path, contents)
+      end
+    end)
+  end
 end
