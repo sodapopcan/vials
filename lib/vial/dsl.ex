@@ -18,7 +18,7 @@ defmodule Vial.DSL do
     func
   end
 
-  def cd(path) do
+  def base_path(path) do
     add(fn vial ->
       path = Path.join(vial.cwd, path)
       Map.put(vial, :cwd, path)

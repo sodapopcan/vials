@@ -8,11 +8,11 @@ defmodule Vial.DSLTest do
     :ok
   end
 
-  describe "cd/1" do
+  describe "base_path/1" do
     test "returns vial struct with new cwd" do
       vial = %Vial{cwd: "/"}
 
-      func = @subject.cd("/some/other/dir")
+      func = @subject.base_path("/some/other/dir")
       vial = func.(vial)
 
       assert vial.cwd == "/some/other/dir"
