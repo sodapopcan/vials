@@ -89,4 +89,17 @@ defmodule Vial.DSLTest do
       assert {:error, _} = func.(vial)
     end
   end
+
+  describe "delete_file/1" do
+    @tag :tmp_dir
+    test "deletes a file", %{tmp_dir: tmp_dir} do
+      vial = %Vial{cwd: tmp_dir}
+      path = Path.join(tmp_dir, "foo.txt")
+
+      func = @subject.delete_file("foo.txt")
+      func.(vial)
+
+      assert {:error, _} = File.read(path)
+    end
+  end
 end

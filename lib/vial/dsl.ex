@@ -49,4 +49,12 @@ defmodule Vial.DSL do
       end
     end)
   end
+
+  def delete_file(filename) do
+    add(fn vial ->
+      path = Path.join(vial.cwd, filename)
+
+      File.rm(path)
+    end)
+  end
 end
