@@ -86,7 +86,7 @@ defmodule Vial do
 
     vial = Vial.load(vial)
 
-    Mix.Task.run(vial.task)
+    Mix.Task.run(vial.task, vial.raw_task_args)
 
     Vial.DSL.run_actions(vial)
   end
