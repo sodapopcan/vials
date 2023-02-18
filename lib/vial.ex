@@ -81,14 +81,14 @@ defmodule Vial do
     Mix.Task.run(vial.task)
 
     for action <- vial.module.actions() do
-      apply(vial.module, action, [vial])
+      action.(vial)
     end
   end
 
   defmacro __using__(_) do
     quote do
       @args Args.get()
-      use Vial.DSL, @args
+      use Vial.DSL
     end
   end
 end

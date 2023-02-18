@@ -1,45 +1,39 @@
 defmodule Vial.DSL do
-  defmacro __using__(args) do
+  use Agent
+
+  defmacro __using__(_) do
     quote do
-      @before_compile Vial.DSL
+      @before_compile unquote(Vial.DSL)
 
-      @actions []
+      Agent.start_link(fn -> [] end, name: unquote(Vial.DSL))
 
-      @args unquote(args)
-
-      import Vial.DSL
+      import unquote(Vial.DSL)
     end
   end
 
   defmacro __before_compile__(_) do
     quote do
       def actions do
-        Enum.reverse(@actions)
+        Agent.get(Vial.DSL, & &1) |> Enum.reverse()
       end
     end
   end
 
-  defmacro cd(path) do
-    func_name = :"cd_#{System.unique_integer([:positive])}"
-
-    quote do
-      @actions [unquote(func_name) | @actions]
-      def unquote(func_name)(vial) do
-        path = Path.join(vial.cwd, unquote(path))
-        Map.put(vial, :cwd, path)
-      end
-    end
+  defp add(func) do
+    Agent.update(__MODULE__, &[func | &1])
   end
 
-  defmacro create_file(filename, contents) do
-    func_name = :"create_file_#{System.unique_integer([:positive])}"
+  def cd(path) do
+    add(fn vial ->
+      path = Path.join(vial.cwd, path)
+      Map.put(vial, :cwd, path)
+    end)
+  end
 
-    quote do
-      @actions [unquote(func_name) | @actions]
-      def unquote(func_name)(vial) do
-        path = Path.join(vial.cwd, unquote(filename))
-        File.write!(path, unquote(contents))
-      end
-    end
+  def create_file(filename, contents) do
+    add(fn vial ->
+      path = Path.join(vial.cwd, filename)
+      File.write!(path, contents)
+    end)
   end
 end
