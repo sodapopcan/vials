@@ -55,5 +55,13 @@ defmodule Vial.DSLTest do
 
       assert contents == edits
     end
+
+    test "returns errors" do
+      vial = %Vial{cwd: tmp_dir}
+
+      func = @subject.edit_file("non-existent-file.txt", &Function.identity/1)
+
+      assert {:error, _} = func.(vial)
+    end
   end
 end
