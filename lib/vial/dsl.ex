@@ -41,6 +41,10 @@ defmodule Vial.DSL do
            edits <- func.(contents),
            :ok <- File.write(path, edits) do
         {:ok, edits}
+      else
+        [] -> {:error, "Globs must match exactly one file"}
+        [_|_] -> {:error, "Globs must match exactly one file"}
+        error -> error
       end
     end)
   end

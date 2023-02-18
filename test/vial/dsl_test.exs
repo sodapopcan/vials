@@ -68,6 +68,19 @@ defmodule Vial.DSLTest do
       assert edits == "edited"
     end
 
+    @tag :tmp_dir
+    test "errors on multiple glob matches", %{tmp_dir: tmp_dir} do
+      vial = %Vial{cwd: tmp_dir}
+      path_1 = Path.join(tmp_dir, "apples_and_organes.txt")
+      path_2 = Path.join(tmp_dir, "apples_and_bananas.txt")
+      File.write!(path_1, "")
+      File.write!(path_2, "")
+
+      func = @subject.edit_file("apples_and_*.txt", &Function.identity/1)
+
+      assert {:error, "Globs must match exactly one file"} = func.(vial)
+    end
+
     test "returns errors" do
       vial = %Vial{cwd: "./"}
 
