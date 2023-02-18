@@ -105,5 +105,26 @@ defmodule VialTest do
 
       File.rm(created_file)
     end
+
+    test "conditional create_file" do
+      defmodule Elixir.Mix.Tasks.Conditional.Create.File do
+        def run(_), do: nil
+      end
+
+      path = Path.join("tmp", "conditional.create.file.ex")
+      File.write!(path, """
+      defmodule Vials.Create.File do
+        use Vial
+
+        if @args[:arg_not_passed] do
+          create_file "file.txt", "I'm some content"
+        end
+      end
+      """)
+
+      Vial.run(["conditional.create.file"])
+
+      refute File.exists?("tmp/file.txt")
+    end
   end
 end
