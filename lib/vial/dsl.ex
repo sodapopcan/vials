@@ -27,47 +27,27 @@ defmodule Vial.DSL do
   end
 
   def create_file(filename, contents) do
-    add(fn vial ->
-      path = Path.join(vial.cwd, filename)
-      File.write!(path, contents)
-    end)
+    add({:create, filename, contents})
   end
 
   def edit_file(filename, func) do
-    add(fn vial ->
-      path = Path.join(vial.cwd, filename)
-
-      with [filename] <- Path.wildcard(path),
-           {:ok, contents} <- File.read(filename),
-           edits <- func.(contents),
-           :ok <- File.write(path, edits) do
-        {:ok, edits}
-      else
-        [] -> {:error, "Globs must match exactly one file"}
-        [_ | _] -> {:error, "Globs must match exactly one file"}
-        error -> error
-      end
-    end)
+    add({:edit, filename, func})
   end
 
   def delete_file(filename) do
-    add(fn vial ->
-      path = Path.join(vial.cwd, filename)
-
-      File.rm(path)
-    end)
+    {:delete, filename}
   end
 
   def add_dep(dep) do
-    add(fn vial ->
-      path = Path.join(vial.cwd, "mix.exs")
+    last_dep_regex = ~r/defp deps do.*\n(\s+)(\{:.*?})\n/s
 
-      with {:ok, contents} <- File.read(path) do
-        [indent, last_dep] = Regex.run(~r/defp deps do.*\n(\s+)(\{:.*?})\n/s, contents, capture: :all_but_first)
-        replacement = last_dep <> ",\n#{indent}" <> Vial.Util.dep_to_string(dep)
-        contents = String.replace(contents, last_dep, replacement)
-        File.write(path, contents)
-      end
-    end)
+    func = fn contents ->
+      [indent, last_dep] = Regex.run(last_dep_regex, contents, capture: :all_but_first)
+
+      replacement = last_dep <> ",\n#{indent}" <> Vial.Util.dep_to_string(dep)
+      String.replace(contents, last_dep, replacement)
+    end
+
+    add({:edit, "mix.exs", func})
   end
 end
