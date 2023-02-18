@@ -100,7 +100,7 @@ defmodule VialTest do
 
       Vial.run(["create.file", "file_prefix"])
 
-      created_file = "file_prefix_file.txt"
+      created_file = Path.join("tmp", "file_prefix_file.txt")
       assert File.read!(created_file) == "I'm some content"
 
       File.rm(created_file)
