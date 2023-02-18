@@ -15,6 +15,7 @@ defmodule VialTest do
       assert vial.cwd == "tmp"
       assert vial.task == "mod.one"
       assert vial.task_args == ["some-arg", "some-other-arg"]
+      assert vial.raw_task_args == ~w[some-arg some-other-arg --binary-id --database sqlite]
       assert vial.options == [binary_id: true, database: "sqlite"]
 
       assert vial.args == %{
