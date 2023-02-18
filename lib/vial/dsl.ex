@@ -7,16 +7,14 @@ defmodule Vial.DSL do
     Agent.start_link(fn -> [] end, name: __MODULE__)
   end
 
-  def run_actions(vial) do
-    for action <- Agent.get(__MODULE__, & &1) do
-      action.(vial)
-    end
+  def get do
+    Agent.get(__MODULE__, & &1) |> Enum.reverse()
   end
 
-  defp add(func) do
-    Agent.update(__MODULE__, &[func | &1])
+  defp add(message) do
+    Agent.update(__MODULE__, &[message | &1])
 
-    func
+    message
   end
 
   def base_path(path) do
@@ -35,7 +33,7 @@ defmodule Vial.DSL do
   end
 
   def delete_file(filename) do
-    {:delete, filename}
+    add({:delete, filename})
   end
 
   def add_dep(dep) do

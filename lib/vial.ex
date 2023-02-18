@@ -89,7 +89,15 @@ defmodule Vial do
 
     Mix.Task.run(vial.task, vial.raw_task_args)
 
-    Vial.DSL.run_actions(vial)
+    run_actions(vial, Vial.DSL.get())
+  end
+
+  defp run_actions(vial, []), do: vial
+
+  defp run_actions(vial, [action | actions]) do
+    vial = Vial.Runner.run(vial, action)
+
+    run_actions(vial, actions)
   end
 
   defmacro __using__(_) do
