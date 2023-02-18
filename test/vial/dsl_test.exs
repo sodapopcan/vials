@@ -24,12 +24,6 @@ defmodule Vial.DSLTest do
     test "creates a function called create_file_1/2", %{tmp_dir: tmp_dir} do
       vial = %Vial{cwd: tmp_dir}
 
-      defmodule CreateFile do
-        use Vial.DSL
-
-        create_file "hello.txt", "Hi there"
-      end
-
       func = @subject.create_file("hello.txt", "Hi there")
       func.(vial)
 
