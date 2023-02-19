@@ -24,12 +24,10 @@ defmodule Vial do
     end
   end
 
-  defdelegate start_link(args), to: Args
-
   def run(args) do
     vial = Vial.parse(args)
 
-    Vial.start_link(vial.args)
+    Vial.Args.start_link(vial.args)
 
     vial = Vial.load(vial)
 
