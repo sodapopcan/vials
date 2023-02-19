@@ -26,6 +26,26 @@ defmodule Vial do
 
   defdelegate start_link(args), to: Args
 
+  def run(args) do
+    vial = Vial.parse(args)
+
+    Vial.start_link(vial.args)
+
+    vial = Vial.load(vial)
+
+    Mix.Task.run(vial.task, vial.raw_task_args)
+
+    run_actions(vial, Vial.DSL.get())
+  end
+
+  defp run_actions(vial, []), do: vial
+
+  defp run_actions(vial, [action | actions]) do
+    vial = Vial.Runner.run(vial, action)
+
+    run_actions(vial, actions)
+  end
+
   def parse(args) do
     {vial_options, rest} =
       OptionParser.parse_head!(args,
@@ -78,26 +98,6 @@ defmodule Vial do
     [{module, _}] = Code.compile_file(path)
 
     %{vial | module: module}
-  end
-
-  def run(args) do
-    vial = Vial.parse(args)
-
-    Vial.start_link(vial.args)
-
-    vial = Vial.load(vial)
-
-    Mix.Task.run(vial.task, vial.raw_task_args)
-
-    run_actions(vial, Vial.DSL.get())
-  end
-
-  defp run_actions(vial, []), do: vial
-
-  defp run_actions(vial, [action | actions]) do
-    vial = Vial.Runner.run(vial, action)
-
-    run_actions(vial, actions)
   end
 
   defmacro __using__(_) do
