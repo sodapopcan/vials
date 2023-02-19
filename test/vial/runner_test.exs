@@ -35,10 +35,7 @@ defmodule Vial.RunnerTest do
       %Vial{} =
         @subject.run(
           vial,
-          {:edit, "foo.txt",
-           fn contents ->
-             contents <> "I'm the second line\n"
-           end}
+          {:edit, "foo.txt", &(&1 <> "I'm the second line\n")}
         )
 
       contents = File.read!(path)
