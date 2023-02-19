@@ -12,38 +12,34 @@ defmodule Vial do
     errors: []
   ]
 
-  defmodule Args do
-    use Agent
-
-    def start_link(args) do
-      Agent.start_link(fn -> args end, name: __MODULE__)
-    end
-
-    def get do
-      Agent.get(__MODULE__, & &1)
-    end
-  end
-
   def run(args) do
     vial = Vial.parse(args)
 
-    Vial.Args.start_link(vial.args)
+    Mix.Task.run(vial.task, vial.raw_task_args)
 
+    vial = load(vial)
+
+    run_actions(vial, Vial.DSL.get())
+  end
+
+  def load(vial) do
     path = Path.join(vial.module_location, "#{vial.task}.ex")
     {:ok, ast} = Code.string_to_quoted(File.read!(path))
-    {:defmodule, line, [aliases | [[do: {:__block__, [], body}]]]} = ast
     args = Macro.escape(vial.args)
-    new = quote(do: (@args unquote(args)))
-    body = [new | body]
-    ast = {:defmodule, line, [aliases | [[do: {:__block__, [], body}]]]}
+    module_attr_ast = quote(do: (@args unquote(args)))
+
+    ast =
+      Macro.prewalk(ast, false, fn
+        [do: block], false ->
+          {[do: [module_attr_ast | [block]]], true}
+
+        other, acc ->
+          {other, acc}
+      end)
 
     [{module, _}] = Code.compile_quoted(ast)
 
-    vial = %{vial | module: module}
-
-    Mix.Task.run(vial.task, vial.raw_task_args)
-
-    run_actions(vial, Vial.DSL.get())
+    %{vial | module: module}
   end
 
   defp run_actions(vial, []), do: vial
@@ -103,7 +99,6 @@ defmodule Vial do
 
   defmacro __using__(_) do
     quote do
-      # @args Args.get()
       Vial.DSL.start_link()
       import Vial.DSL, except: [start_link: 1, start_link: 2]
     end
