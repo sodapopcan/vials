@@ -1,38 +1,43 @@
 defmodule Vial.Runner do
-  def run(vial, func) when is_function(func) do
-    func.(vial)
+  defstruct [
+    :base_path,
+    errors: []
+  ]
+
+  def run(runner, func) when is_function(func) do
+    func.(runner)
   end
 
-  def run(vial, {:create, filename, contents}) do
-    path = Path.join(vial.cwd, filename)
+  def run(runner, {:create, filename, contents}) do
+    path = Path.join(runner.cwd, filename)
 
     File.write!(path, contents)
 
-    vial
+    runner
   end
 
-  def run(vial, {:edit, filename, func}) when is_binary(filename) and is_function(func, 1) do
-    glob = Path.join(vial.cwd, filename)
+  def run(runner, {:edit, filename, func}) when is_binary(filename) and is_function(func, 1) do
+    glob = Path.join(runner.cwd, filename)
 
     with [filename] <- Path.wildcard(glob),
          {:ok, contents} <- File.read(filename),
          edited <- func.(contents),
          :ok <- File.write(filename, edited) do
-      vial
+      runner
     else
       [] ->
-        %{vial | errors: ["File not found: #{filename}" | vial.errors]}
+        %{runner | errors: ["File not found: #{filename}" | runner.errors]}
 
       [_ | _] ->
-        %{vial | errors: ["Globs must match exactly one file" | vial.errors]}
+        %{runner | errors: ["Globs must match exactly one file" | runner.errors]}
 
       {:error, error} ->
-        %{vial | errors: [error | vial.errors]}
+        %{runner | errors: [error | runner.errors]}
     end
   end
 
-  def run(vial, {:delete, filename}) do
-    path = Path.join(vial.cwd, filename)
+  def run(runner, {:delete, filename}) do
+    path = Path.join(runner.cwd, filename)
 
     File.rm(path)
   end
