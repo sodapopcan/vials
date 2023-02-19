@@ -28,14 +28,7 @@ defmodule Vial do
     args = Macro.escape(vial.args)
     module_attr_ast = quote(do: (@args unquote(args)))
 
-    ast =
-      Macro.prewalk(ast, false, fn
-        [do: block], false ->
-          {[do: [module_attr_ast | [block]]], true}
-
-        other, acc ->
-          {other, acc}
-      end)
+    ast = Vial.Util.inject_into_module_body(ast, module_attr_ast)
 
     [{module, _}] = Code.compile_quoted(ast)
 
