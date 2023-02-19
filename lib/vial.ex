@@ -29,7 +29,17 @@ defmodule Vial do
 
     Vial.Args.start_link(vial.args)
 
-    vial = Vial.load(vial)
+    path = Path.join(vial.module_location, "#{vial.task}.ex")
+    {:ok, ast} = Code.string_to_quoted(File.read!(path))
+    {:defmodule, line, [aliases | [[do: {:__block__, [], body}]]]} = ast
+    args = Macro.escape(vial.args)
+    new = quote(do: (@args unquote(args)))
+    body = [new | body]
+    ast = {:defmodule, line, [aliases | [[do: {:__block__, [], body}]]]}
+
+    [{module, _}] = Code.compile_quoted(ast)
+
+    vial = %{vial | module: module}
 
     Mix.Task.run(vial.task, vial.raw_task_args)
 
@@ -91,16 +101,9 @@ defmodule Vial do
     }
   end
 
-  def load(vial) do
-    path = Path.join(vial.module_location, "#{vial.task}.ex")
-    [{module, _}] = Code.compile_file(path)
-
-    %{vial | module: module}
-  end
-
   defmacro __using__(_) do
     quote do
-      @args Args.get()
+      # @args Args.get()
       Vial.DSL.start_link()
       import Vial.DSL, except: [start_link: 1, start_link: 2]
     end
