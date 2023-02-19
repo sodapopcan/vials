@@ -33,7 +33,7 @@ defmodule Vial do
         aliases: [l: :location]
       )
 
-    [ _ | raw_task_args] = rest
+    [_ | raw_task_args] = rest
 
     {options, task_data, _} =
       OptionParser.parse(rest,
@@ -64,7 +64,7 @@ defmodule Vial do
     %Vial{
       module: nil,
       module_location: module_location,
-      cwd: (if Mix.env() == :test, do: "tmp", else: File.cwd!()),
+      cwd: if(Mix.env() == :test, do: "tmp", else: File.cwd!()),
       task: task,
       task_args: task_args,
       raw_task_args: raw_task_args,

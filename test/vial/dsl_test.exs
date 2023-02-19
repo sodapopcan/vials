@@ -27,7 +27,7 @@ defmodule Vial.DSLTest do
 
   describe "edit_file/2" do
     test "return an edit message" do
-      assert {:edit, "foo.txt", func} = @subject.edit_file("foo.txt", & &1 <> "!")
+      assert {:edit, "foo.txt", func} = @subject.edit_file("foo.txt", &(&1 <> "!"))
 
       assert func.("hi") == "hi!"
     end

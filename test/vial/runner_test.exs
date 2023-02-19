@@ -32,13 +32,14 @@ defmodule Vial.RunnerTest do
       path = Path.join(tmp_dir, "foo.txt")
       File.write(path, "I'm the first line\n")
 
-      %Vial{} = @subject.run(
-        vial,
-        {:edit, "foo.txt",
-         fn contents ->
-           contents <> "I'm the second line\n"
-         end}
-      )
+      %Vial{} =
+        @subject.run(
+          vial,
+          {:edit, "foo.txt",
+           fn contents ->
+             contents <> "I'm the second line\n"
+           end}
+        )
 
       contents = File.read!(path)
 

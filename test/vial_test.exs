@@ -70,6 +70,7 @@ defmodule VialTest do
       end
 
       path = Path.join("tmp", "run1.ex")
+
       File.write!(path, """
       defmodule Vials.Run1 do
         use Vial
@@ -91,6 +92,7 @@ defmodule VialTest do
       end
 
       path = Path.join("tmp", "create.file.ex")
+
       File.write!(path, """
       defmodule Vials.Create.File do
         use Vial
@@ -113,6 +115,7 @@ defmodule VialTest do
       end
 
       path = Path.join("tmp", "conditional.create.file.ex")
+
       File.write!(path, """
       defmodule Vials.Conditional.Create.File do
         use Vial
