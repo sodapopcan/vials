@@ -1,9 +1,7 @@
 defmodule Vial.DSL do
   use Agent
 
-  def start_link, do: start_link(nil)
-
-  def start_link(_) do
+  def start_link([]) do
     Agent.start_link(fn -> [] end, name: __MODULE__)
   end
 
@@ -17,13 +15,6 @@ defmodule Vial.DSL do
     message
   end
 
-  def base_path(path) do
-    add(fn vial ->
-      path = Path.join(vial.cwd, path)
-      Map.put(vial, :cwd, path)
-    end)
-  end
-
   def create_file(filename, contents) do
     add({:create, filename, contents})
   end
@@ -34,6 +25,13 @@ defmodule Vial.DSL do
 
   def delete_file(filename) do
     add({:delete, filename})
+  end
+
+  def base_path(path) do
+    add(fn vial ->
+      path = Path.join(vial.cwd, path)
+      Map.put(vial, :cwd, path)
+    end)
   end
 
   def add_dep(dep) do

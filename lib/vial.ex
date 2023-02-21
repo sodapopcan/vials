@@ -22,27 +22,6 @@ defmodule Vial do
     run_actions(vial, Vial.DSL.get())
   end
 
-  def load(vial) do
-    path = Path.join(vial.module_location, "#{vial.task}.ex")
-    {:ok, ast} = Code.string_to_quoted(File.read!(path))
-    args = Macro.escape(vial.args)
-    module_attr_ast = quote(do: (@args unquote(args)))
-
-    ast = Vial.Util.inject_into_module_body(ast, module_attr_ast)
-
-    [{module, _}] = Code.compile_quoted(ast)
-
-    %{vial | module: module}
-  end
-
-  defp run_actions(vial, []), do: vial
-
-  defp run_actions(vial, [action | actions]) do
-    vial = Vial.Runner.run(vial, action)
-
-    run_actions(vial, actions)
-  end
-
   def parse(args) do
     {vial_options, rest} =
       OptionParser.parse_head!(args,
@@ -90,10 +69,31 @@ defmodule Vial do
     }
   end
 
+  def load(vial) do
+    path = Path.join(vial.module_location, "#{vial.task}.ex")
+    {:ok, ast} = Code.string_to_quoted(File.read!(path))
+    args = Macro.escape(vial.args)
+    module_attr_ast = quote(do: (@args unquote(args)))
+
+    ast = Vial.Util.inject_into_module_body(ast, module_attr_ast)
+
+    [{module, _}] = Code.compile_quoted(ast)
+
+    %{vial | module: module}
+  end
+
+  defp run_actions(vial, []), do: vial
+
+  defp run_actions(vial, [action | actions]) do
+    vial = Vial.Runner.run(vial, action)
+
+    run_actions(vial, actions)
+  end
+
   defmacro __using__(_) do
     quote do
-      Vial.DSL.start_link()
-      import Vial.DSL, except: [start_link: 1, start_link: 2]
+      Vial.DSL.start_link([])
+      import Vial.DSL, except: [start_link: 2]
     end
   end
 end
