@@ -12,7 +12,34 @@ defmodule Vial do
     errors: []
   ]
 
+  defmodule Context do
+    defstruct [
+      base_path: File.cwd!(),
+      errors: [],
+      log: []
+    ]
+
+    def new(opts) do
+      Map.merge(%Context{}, opts)
+    end
+  end
+
   def run(args) do
+    {vial_opts, rest} = parse_vial_opts(args)
+    context = Context.new(vial_opts)
+
+    [task_name | raw_task_args] = rest
+    task_args = parse_task_args(rest)
+
+    vial_module = load_vial(vial_opts, task_args)
+
+    validate!(vial_module)
+
+    Mix.Task.run(task_name, raw_task_args)
+
+    run_actions(vial_module)
+
+    ######
     vial = Vial.parse(args)
 
     Mix.Task.run(vial.task, vial.raw_task_args)
