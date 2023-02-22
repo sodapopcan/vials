@@ -3,6 +3,101 @@ defmodule VialTest do
 
   @subject Vial
 
+  describe "parse_vial_opts" do
+    test "parses vial args from the arg list" do
+      args = ["-l", "some/path", "some.task", "--some", "option"]
+
+      {vial_opts, _} = @subject.parse_vial_opts(args)
+
+      assert vial_opts == [location: "some/path"]
+    end
+  end
+
+  describe "parse_task_args" do
+    test "parses task args" do
+      args = ["some.task", "arg", "--some", "option", "--bool"]
+
+      {task_opts, task_args} = @subject.parse_task_args(args)
+
+      assert task_args == ["some.task", "arg"]
+      assert task_opts == [some: "option", bool: true]
+    end
+  end
+
+  describe "get_path" do
+    setup do
+      home = Application.get_env(:vial, :user_home).()
+
+      remove_test_dirs = fn ->
+        [
+          Path.join(home, ".vials"),
+          Path.join(home, "vials"),
+          Path.join([home, "some", "path"]),
+          Path.join(home, "some")
+        ]
+        |> Enum.each(fn dir ->
+          File.exists?(dir)
+          if File.exists?(dir), do: File.rmdir(dir)
+        end)
+      end
+
+      # Ensure test dirs are removed before each test
+      remove_test_dirs.()
+
+      on_exit(remove_test_dirs)
+
+      %{home: home}
+    end
+
+    test "returns `:home/vials` by default", %{home: home} do
+      File.mkdir(Path.join(home, "vials"))
+
+      {:ok, module_path} = @subject.get_path()
+
+      assert module_path == Path.join(home, "vials")
+    end
+
+    test "returns `:home/.vials` if it exists", %{home: home} do
+      File.mkdir(Path.join(home, "vials"))
+      File.mkdir(Path.join(home, ".vials"))
+
+      {:ok, module_path} = @subject.get_path()
+
+      assert module_path == Path.join(home, ".vials")
+    end
+
+    test "returns $VIALS_PATH if VIALS_PATH exists", %{home: home} do
+      File.mkdir(Path.join(home, "vials"))
+      File.mkdir(Path.join(home, ".vials"))
+      File.mkdir_p(Path.join(~w[tmp some path]))
+      System.put_env("VIALS_PATH", Path.join(~w[tmp some path]))
+
+      {:ok, module_path} = @subject.get_path()
+
+      assert module_path == Path.join(~w[tmp some path])
+    end
+
+    test "raises if none of the options exist" do
+      {:error, message} = @subject.get_path()
+
+      assert message ==
+               "No path found.  Please create one of `~/vials` or `~/.vials` or set VIALS_PATH."
+    end
+  end
+
+  # describe "compile_vial_module" do
+  #   @tag :tmp_dir
+  #   test "compiles the user's vial", %{tmp_dir: tmp_dir} do
+  #     vial_opts = []
+  #     File.write!(Path.join(tmp_dir, "mod.two"), """
+  #     defmodule Elixir.Mod.Two do
+  #     end
+  #     """)
+
+  #     @subject.load_vial_module()
+  #   end
+  # end
+
   describe "parse/1" do
     @tag :tmp_dir
     test "parses mix args and returns a %Vial{} struct", %{tmp_dir: tmp_dir} do
@@ -24,40 +119,6 @@ defmodule VialTest do
                binary_id: true,
                database: "sqlite"
              }
-    end
-  end
-
-  describe "load/1" do
-    @tag :tmp_dir
-    test "loads vial module from args and returns a %Vial{} struct", %{tmp_dir: tmp_dir} do
-      path = Path.join(tmp_dir, "mod.one.ex")
-
-      File.write!(path, """
-      defmodule Elixir.Mod.One do
-        def test, do: "test"
-      end
-      """)
-
-      vial = %Vial{module_location: tmp_dir, task: "mod.one"}
-
-      vial = @subject.load(vial)
-
-      assert vial.module == Mod.One
-    end
-
-    test "works with a default module location" do
-      File.write!("tmp/mod.two.ex", """
-      defmodule Elixir.Mod.Two do
-      end
-      """)
-
-      vial =
-        %Vial{module_location: "tmp", task: "mod.two"}
-        |> @subject.load()
-
-      assert vial.module == Mod.Two
-
-      File.rm("tmp/mod.two.ex")
     end
   end
 
