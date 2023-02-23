@@ -3,19 +3,6 @@ defmodule Vial do
     defexception [:message]
   end
 
-  defstruct [
-    :module_location,
-    :module,
-    :cwd,
-    :task,
-    :task_args,
-    :raw_task_args,
-    :options,
-    :args,
-    :variables,
-    errors: []
-  ]
-
   defmodule Context do
     defstruct base_path: File.cwd!(),
               errors: [],
@@ -27,24 +14,24 @@ defmodule Vial do
   end
 
   def run(args) do
-    {vial_opts, rest} = parse_vial_opts(args)
-    _context = Context.new(vial_opts)
+    {vial_opts, raw_task_args} = parse_vial_opts(args)
+    context = vial_opts |> Enum.into(%{}) |> Context.new()
 
-    [task_name | raw_task_args] = rest
-    _task_args = parse_task_args(raw_task_args)
+    task_args = parse_task_args(raw_task_args)
+    module_attr_ast = quote(do: (@args unquote(task_args)))
 
-#     with {:ok, path} <- get_path(vial_opts),
-#          {:ok, file} <- get_file(path, task_name),
-#          {:ok, vial} <- load_module(file),
-#          {:ok, vial} <- inject_args(vial, task_args),
-#          {:ok, vial} <- compile_module(vial),
-#          {:ok, vial} <- validate(vial) do
-#       run_task(task_name, raw_task_args)
-#       run_actions(context, vial.actions())
-#     else
-#       {:error, error} ->
-#         raise error
-#     end
+     with {:ok, path} <- get_path(vial_opts),
+          {:ok, file} <- read_file(path, "#{task_args._0}.ex"),
+          {:ok, ast} <- Code.string_to_quoted(file),
+          {:ok, ast} <- Vial.Util.inject_into_module_body(ast, module_attr_ast),
+          {:ok, vial} <- compile(ast) do
+       [task_name, raw_task_args] = raw_task_args
+       Mix.Task.run(task_name, raw_task_args)
+       run_actions(context, vial.actions())
+     else
+       {:error, message} ->
+         raise VialException, message: message
+     end
   end
 
   def parse_vial_opts(args) do
@@ -55,13 +42,23 @@ defmodule Vial do
   end
 
   def parse_task_args(args) do
-    {args, opts, _} =
+    {opts, args, _} =
       OptionParser.parse(args,
         switches: [],
         allow_nonexistent_atoms: true
       )
 
-    {args, opts}
+    target =
+      case args do
+        [_, target | _] -> target
+        [_] -> nil
+      end
+
+    args
+    |> Enum.with_index()
+    |> Enum.map(fn {arg, index} -> {:"_#{index}", arg} end)
+    |> Enum.into(%{target: target})
+    |> Map.merge(Enum.into(opts, %{}))
   end
 
   def get_path(vial_opts \\ []) do
@@ -83,66 +80,20 @@ defmodule Vial do
     end
   end
 
-  ####################
-
-  def parse(args) do
-    {vial_options, rest} =
-      OptionParser.parse_head!(args,
-        switches: [location: :string],
-        aliases: [l: :location]
-      )
-
-    [_ | raw_task_args] = rest
-
-    {options, task_data, _} =
-      OptionParser.parse(rest,
-        switches: [],
-        allow_nonexistent_atoms: true
-      )
-
-    [task | task_args] = task_data
-
-    module_location =
-      if vial_options[:location] do
-        vial_options[:location]
-      else
-        if Mix.env() == :test do
-          "tmp"
-        else
-          Path.join(System.user_home(), "vials")
-        end
-      end
-
-    args =
-      task_args
-      |> Enum.with_index()
-      |> Enum.map(fn {arg, index} -> {:"_#{index + 1}", arg} end)
-      |> Enum.into(%{})
-      |> Map.merge(Enum.into(options, %{}))
-
-    %Vial{
-      module: nil,
-      module_location: module_location,
-      cwd: if(Mix.env() == :test, do: "tmp", else: File.cwd!()),
-      task: task,
-      task_args: task_args,
-      raw_task_args: raw_task_args,
-      options: options,
-      args: args
-    }
+  def read_file(path, filename) do
+    path
+    |> Path.join(filename)
+    |> File.read()
   end
 
-  def load(vial) do
-    path = Path.join(vial.module_location, "#{vial.task}.ex")
-    {:ok, ast} = Code.string_to_quoted(File.read!(path))
-    args = Macro.escape(vial.args)
-    module_attr_ast = quote(do: @args(unquote(args)))
-
-    ast = Vial.Util.inject_into_module_body(ast, module_attr_ast)
-
+  def compile(ast) do
     [{module, _}] = Code.compile_quoted(ast)
+    dbg(module)
 
-    %{vial | module: module}
+    {:ok, module}
+  rescue
+    e ->
+      {:error, e.description}
   end
 
   defp run_actions(vial, []), do: vial
@@ -156,7 +107,7 @@ defmodule Vial do
   defmacro __using__(_) do
     quote do
       Vial.DSL.start_link([])
-      import Vial.DSL, except: [start_link: 2]
+      import Vial.DSL, except: [start_link: 1]
     end
   end
 end

@@ -1,4 +1,12 @@
 defmodule Vial.Util do
+  def user_home do
+    if Mix.env() == :test do
+      "tmp"
+    else
+      System.user_home()
+    end
+  end
+
   def dep_to_string(dep) do
     dep
     |> Tuple.to_list()
@@ -16,6 +24,6 @@ defmodule Vial.Util do
           {other, acc}
       end)
 
-    ast
+    {:ok, ast}
   end
 end

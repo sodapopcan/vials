@@ -1,6 +1,8 @@
 defmodule VialTest do
   use ExUnit.Case
 
+  import ExUnit.CaptureIO
+
   @subject Vial
 
   describe "parse_vial_opts" do
@@ -15,12 +17,26 @@ defmodule VialTest do
 
   describe "parse_task_args" do
     test "parses task args" do
-      args = ["some.task", "arg", "--some", "option", "--bool"]
+      args = ["some.task", "arg", "another_arg", "--some", "option", "--bool"]
 
-      {task_opts, task_args} = @subject.parse_task_args(args)
+      task_args = @subject.parse_task_args(args)
 
-      assert task_args == ["some.task", "arg"]
-      assert task_opts == [some: "option", bool: true]
+      assert %{
+        _0: "some.task",
+        _1: "arg",
+        _2: "another_arg",
+        target: "arg",
+        some: "option",
+        bool: true
+      } = task_args
+    end
+
+    test "sets target to nil if there is none" do
+      args = ["some.task"]
+
+      task_args = @subject.parse_task_args(args)
+
+      assert %{_0: "some.task", target: nil} = task_args
     end
   end
 
@@ -85,69 +101,71 @@ defmodule VialTest do
     end
   end
 
-  # describe "compile_vial_module" do
-  #   @tag :tmp_dir
-  #   test "compiles the user's vial", %{tmp_dir: tmp_dir} do
-  #     vial_opts = []
-  #     File.write!(Path.join(tmp_dir, "mod.two"), """
-  #     defmodule Elixir.Mod.Two do
-  #     end
-  #     """)
-
-  #     @subject.load_vial_module()
-  #   end
-  # end
-
-  describe "parse/1" do
+  describe "read_file/2" do
     @tag :tmp_dir
-    test "parses mix args and returns a %Vial{} struct", %{tmp_dir: tmp_dir} do
-      vial =
-        @subject.parse(
-          ~w[-l #{tmp_dir} mod.one some-arg some-other-arg --binary-id --database sqlite]
-        )
+    test "it finds a file given its path", %{tmp_dir: path} do
+      task_name = "some.task"
+      File.write!(Path.join(path, "some.task"), "I'm the file contents.")
 
-      assert vial.module_location == tmp_dir
-      assert vial.cwd == "tmp"
-      assert vial.task == "mod.one"
-      assert vial.task_args == ["some-arg", "some-other-arg"]
-      assert vial.raw_task_args == ~w[some-arg some-other-arg --binary-id --database sqlite]
-      assert vial.options == [binary_id: true, database: "sqlite"]
+      {:ok, contents} = @subject.read_file(path, task_name)
 
-      assert vial.args == %{
-               :_1 => "some-arg",
-               :_2 => "some-other-arg",
-               binary_id: true,
-               database: "sqlite"
-             }
+      assert contents == "I'm the file contents."
+    end
+  end
+
+  describe "compile" do
+    test "it compiles an ast" do
+      {:ok, ast} = """
+      defmodule CompileFile do
+        def hi do
+          "hi"
+        end
+      end
+      """
+      |> Code.string_to_quoted()
+
+      {:ok, module} = @subject.compile(ast)
+
+      assert module.hi() == "hi"
+    end
+
+    test "returns an error if invalid" do
+      error = "invalid quoted expression: {\"invalid\"}\n\nPlease make sure your quoted expressions are made of valid AST nodes. If you would like to introduce a value into the AST, such as a four-element tuple or a map, make sure to call Macro.escape/1 before"
+
+      assert {:error, ^error} = @subject.compile([{"invalid"}])
     end
   end
 
   describe "run/1" do
-    test "runs the associated task" do
+    setup do
+      vial_dir = Path.join(~w[tmp vials])
+      File.mkdir(vial_dir)
+      task_dir = Path.join(~w[tmp tasks])
+      File.mkdir(task_dir)
+
+      %{vial_dir: vial_dir, task_dir: task_dir}
+    end
+
+    test "runs the associated task", %{vial_dir: vial_dir, task_dir: task_dir} do
       defmodule Elixir.Mix.Tasks.Run1 do
         def run(_) do
-          File.write!(Path.join("tmp", "example.txt"), "test output")
+          IO.puts "I ran"
         end
       end
 
-      path = Path.join("tmp", "run1.ex")
+      filename = Path.join(vial_dir, "run1.ex")
 
-      File.write!(path, """
+      File.write!(filename, """
       defmodule Vials.Run1 do
         use Vial
       end
       """)
 
-      Vial.run(["run1"])
-
-      path = Path.join("tmp", "example.txt")
-
-      assert File.read!(path) == "test output"
-
-      File.rm(path)
+      Vial.run(["run1"]) 
+      assert capture_io(fn -> Vial.run(["run1"]) end) == "I ran"
     end
 
-    test "create_file" do
+    test "create_file", %{tmp_dir: tmp_dir} do
       defmodule Elixir.Mix.Tasks.Create.File do
         def run(_), do: nil
       end
