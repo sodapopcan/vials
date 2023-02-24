@@ -1,9 +1,4 @@
 defmodule Vial.Runner do
-  defstruct [
-    :base_path,
-    errors: []
-  ]
-
   def run(context, func) when is_function(func) do
     func.(context)
   end
