@@ -1,6 +1,8 @@
 defmodule Vial.DSLTest do
   use ExUnit.Case
 
+  require Vial.DSL
+
   @subject Vial.DSL
 
   setup do
@@ -22,6 +24,17 @@ defmodule Vial.DSLTest do
   describe "create_file/2" do
     test "return a create message" do
       assert {:create, "hello.txt", "Hi there"} = @subject.create_file("hello.txt", "Hi there")
+    end
+
+    test "transform a block to an ast" do
+      result =
+        @subject.create_file "mod.ex" do
+          defmodule F do
+            def hi, do: "hi"
+          end
+        end
+
+      assert {:create, "mod.ex", {:defmodule, _, _}} = result
     end
   end
 

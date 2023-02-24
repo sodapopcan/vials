@@ -9,14 +9,24 @@ defmodule Vial.DSL do
     Agent.get(__MODULE__, & &1) |> Enum.reverse()
   end
 
-  defp add(message) do
+  def add(message) do
     Agent.update(__MODULE__, &[message | &1])
 
     message
   end
 
-  def create_file(filename, contents) do
-    add({:create, filename, contents})
+  defmacro create_file(filename, do: block) do
+    ast = Macro.escape(block)
+
+    quote do
+      Vial.DSL.add({:create, unquote(filename), unquote(ast)})
+    end
+  end
+
+  defmacro create_file(filename, contents) when is_binary(contents) do
+    quote do
+      Vial.DSL.add({:create, unquote(filename), unquote(contents)})
+    end
   end
 
   def edit_file(filename, func) do
