@@ -18,16 +18,19 @@ defmodule Vial do
     context = vial_opts |> Enum.into(%{}) |> Context.new()
 
     task_args = parse_task_args(raw_task_args)
-    module_attr_ast = quote(do: (@args unquote(task_args)))
+    escaped_args = Macro.escape(task_args)
+    module_attr_ast = quote(do: (@args unquote(escaped_args)))
 
      with {:ok, path} <- get_path(vial_opts),
           {:ok, file} <- read_file(path, "#{task_args._0}.ex"),
           {:ok, ast} <- Code.string_to_quoted(file),
           {:ok, ast} <- Vial.Util.inject_into_module_body(ast, module_attr_ast),
           {:ok, vial} <- compile(ast) do
-       [task_name, raw_task_args] = raw_task_args
-       Mix.Task.run(task_name, raw_task_args)
-       run_actions(context, vial.actions())
+       case raw_task_args do
+         [task_name, raw_task_args] -> Mix.Task.run(task_name, raw_task_args)
+         [task_name] -> Mix.Task.run(task_name)
+       end
+       run_actions(context, Vial.DSL.get())
      else
        {:error, message} ->
          raise VialException, message: message
@@ -88,7 +91,6 @@ defmodule Vial do
 
   def compile(ast) do
     [{module, _}] = Code.compile_quoted(ast)
-    dbg(module)
 
     {:ok, module}
   rescue

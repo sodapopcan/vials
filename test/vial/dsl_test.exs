@@ -9,13 +9,13 @@ defmodule Vial.DSLTest do
   end
 
   describe "base_path/1" do
-    test "returns vial struct with new cwd" do
-      vial = %Vial{cwd: "/"}
+    test "returns vial struct with new base_path" do
+      context = %Vial.Context{base_path: "/"}
 
       func = @subject.base_path("/some/other/dir")
-      vial = func.(vial)
+      context = func.(context)
 
-      assert vial.cwd == "/some/other/dir"
+      assert context.base_path == "/some/other/dir"
     end
   end
 

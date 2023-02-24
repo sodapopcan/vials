@@ -1,8 +1,6 @@
 defmodule VialTest do
   use ExUnit.Case
 
-  import ExUnit.CaptureIO
-
   @subject Vial
 
   describe "parse_vial_opts" do
@@ -139,17 +137,23 @@ defmodule VialTest do
   describe "run/1" do
     setup do
       vial_dir = Path.join(~w[tmp vials])
-      File.mkdir(vial_dir)
-      task_dir = Path.join(~w[tmp tasks])
-      File.mkdir(task_dir)
 
-      %{vial_dir: vial_dir, task_dir: task_dir}
+      File.mkdir(vial_dir)
+
+      on_exit(fn ->
+        Path.wildcard("#{vial_dir}/*")
+        |> Enum.each(&File.rm/1)
+
+        File.rmdir(vial_dir)
+      end)
+
+      %{vial_dir: vial_dir}
     end
 
-    test "runs the associated task", %{vial_dir: vial_dir, task_dir: task_dir} do
+    test "runs the associated task", %{vial_dir: vial_dir} do
       defmodule Elixir.Mix.Tasks.Run1 do
         def run(_) do
-          IO.puts "I ran"
+          File.write!(Path.join(~w[tmp example.txt]), "example text")
         end
       end
 
@@ -161,20 +165,23 @@ defmodule VialTest do
       end
       """)
 
-      Vial.run(["run1"]) 
-      assert capture_io(fn -> Vial.run(["run1"]) end) == "I ran"
+      Vial.run(["run1"])
+
+      assert File.read!(Path.join(~w[tmp example.txt])) == "example text"
     end
 
-    test "create_file", %{tmp_dir: tmp_dir} do
+    test "create_file", %{vial_dir: vial_dir} do
       defmodule Elixir.Mix.Tasks.Create.File do
         def run(_), do: nil
       end
 
-      path = Path.join("tmp", "create.file.ex")
+      path = Path.join(vial_dir, "create.file.ex")
 
       File.write!(path, """
       defmodule Vials.Create.File do
         use Vial
+
+        base_path "tmp"
 
         create_file "#\{@args[:_1]}_file.txt", "I'm some content"
       end
@@ -188,12 +195,12 @@ defmodule VialTest do
       File.rm(created_file)
     end
 
-    test "conditional create_file" do
+    test "conditional create_file", %{vial_dir: vial_dir} do
       defmodule Elixir.Mix.Tasks.Conditional.Create.File do
         def run(_), do: nil
       end
 
-      path = Path.join("tmp", "conditional.create.file.ex")
+      path = Path.join(~w[#{vial_dir} conditional.create.file.ex])
 
       File.write!(path, """
       defmodule Vials.Conditional.Create.File do
