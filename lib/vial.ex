@@ -19,20 +19,20 @@ defmodule Vial do
 
     task_args = parse_task_args(raw_task_args)
     escaped_args = Macro.escape(task_args)
-    module_attr_ast = quote(do: (@args unquote(escaped_args)))
+    module_attr_ast = quote(do: @args(unquote(escaped_args)))
 
-     with {:ok, path} <- get_path(vial_opts),
-          {:ok, file} <- read_file(path, "#{task_args._0}.ex"),
-          {:ok, ast} <- Code.string_to_quoted(file),
-          {:ok, ast} <- Vial.Util.inject_into_module_body(ast, module_attr_ast),
-          {:ok, _module} <- compile(ast) do
-        [task_name | raw_task_args] = raw_task_args
-        Mix.Task.run(task_name, raw_task_args)
-       run_actions(context, Vial.DSL.get())
-     else
-       {:error, message} ->
-         raise VialException, message: message
-     end
+    with {:ok, path} <- get_path(vial_opts),
+         {:ok, file} <- read_file(path, "#{task_args._0}.ex"),
+         {:ok, ast} <- Code.string_to_quoted(file),
+         {:ok, ast} <- Vial.Util.inject_into_module_body(ast, module_attr_ast),
+         {:ok, _module} <- compile(ast) do
+      [task_name | raw_task_args] = raw_task_args
+      Mix.Task.run(task_name, raw_task_args)
+      run_actions(context, Vial.DSL.get())
+    else
+      {:error, message} ->
+        raise VialException, message: message
+    end
   end
 
   def parse_vial_opts(args) do
