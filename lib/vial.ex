@@ -9,13 +9,13 @@ defmodule Vial do
               log: []
 
     def new(opts) do
-      Map.merge(%Context{}, opts)
+      Map.merge(%Context{}, Enum.into(opts, %{}))
     end
   end
 
   def run(args) do
     {vial_opts, raw_task_args} = parse_vial_opts(args)
-    context = vial_opts |> Enum.into(%{}) |> Context.new()
+    context = Context.new(vial_opts)
 
     task_args = parse_task_args(raw_task_args)
     escaped_args = Macro.escape(task_args)
@@ -25,9 +25,9 @@ defmodule Vial do
           {:ok, file} <- read_file(path, "#{task_args._0}.ex"),
           {:ok, ast} <- Code.string_to_quoted(file),
           {:ok, ast} <- Vial.Util.inject_into_module_body(ast, module_attr_ast),
-          {:ok, vial} <- compile(ast) do
+          {:ok, _module} <- compile(ast) do
        case raw_task_args do
-         [task_name, raw_task_args] -> Mix.Task.run(task_name, raw_task_args)
+         [task_name | raw_task_args] -> Mix.Task.run(task_name, raw_task_args)
          [task_name] -> Mix.Task.run(task_name)
        end
        run_actions(context, Vial.DSL.get())
@@ -64,7 +64,7 @@ defmodule Vial do
     |> Map.merge(Enum.into(opts, %{}))
   end
 
-  def get_path(vial_opts \\ []) do
+  def get_path(_vial_opts \\ []) do
     home = Application.get_env(:vial, :user_home).()
 
     dirs = [
