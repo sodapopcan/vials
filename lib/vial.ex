@@ -26,10 +26,8 @@ defmodule Vial do
           {:ok, ast} <- Code.string_to_quoted(file),
           {:ok, ast} <- Vial.Util.inject_into_module_body(ast, module_attr_ast),
           {:ok, _module} <- compile(ast) do
-       case raw_task_args do
-         [task_name | raw_task_args] -> Mix.Task.run(task_name, raw_task_args)
-         [task_name] -> Mix.Task.run(task_name)
-       end
+        [task_name | raw_task_args] = raw_task_args
+        Mix.Task.run(task_name, raw_task_args)
        run_actions(context, Vial.DSL.get())
      else
        {:error, message} ->
@@ -51,11 +49,7 @@ defmodule Vial do
         allow_nonexistent_atoms: true
       )
 
-    target =
-      case args do
-        [_, target | _] -> target
-        [_] -> nil
-      end
+    target = Enum.at(args, 1)
 
     args
     |> Enum.with_index()
