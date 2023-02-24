@@ -26,15 +26,23 @@ defmodule Vial.DSLTest do
       assert {:create, "hello.txt", "Hi there"} = @subject.create_file("hello.txt", "Hi there")
     end
 
-    test "transform a block to an ast" do
-      result =
+    test "transforms a block to an ast" do
+      {:create, _, contents} =
         @subject.create_file "mod.ex" do
           defmodule F do
-            def hi, do: "hi"
+            def hi do
+              "hi"
+            end
           end
         end
 
-      assert {:create, "mod.ex", {:defmodule, _, _}} = result
+      assert contents == """
+             defmodule F do
+               def hi do
+                 "hi"
+               end
+             end\
+             """
     end
   end
 

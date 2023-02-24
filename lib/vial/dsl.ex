@@ -15,11 +15,11 @@ defmodule Vial.DSL do
     message
   end
 
-  defmacro create_file(filename, do: block) do
-    ast = Macro.escape(block)
+  defmacro create_file(filename, do: ast) do
+    contents = Sourceror.to_string(ast)
 
     quote do
-      Vial.DSL.add({:create, unquote(filename), unquote(ast)})
+      Vial.DSL.add({:create, unquote(filename), unquote(contents)})
     end
   end
 
