@@ -20,11 +20,11 @@ defmodule VialTest do
       task_args = @subject.parse_task_args(args)
 
       assert %{
-        args: ["some.task", "arg", "another_arg"],
-        task_name: "some.task",
-        target: "arg",
-        opts: %{some: "option", bool: true}
-      } = task_args
+               args: ["some.task", "arg", "another_arg"],
+               task_name: "some.task",
+               target: "arg",
+               opts: %{some: "option", bool: true}
+             } = task_args
     end
 
     test "sets target to nil if there is none" do
@@ -114,58 +114,43 @@ defmodule VialTest do
       ast =
         Code.string_to_quoted!("""
         defmodule Vial.UtilTest.Inject do
+          def args, do: @args
+          def opts, do: @opts
+          def task_name, do: @task_name
+          def target, do: @target
         end
         """)
 
-      quoted =
-        quote do
-          def hi do
-            "hi"
-          end
-        end
+      task_args = %{
+        args: ["task_name", "target"],
+        opts: %{opt1: "opt1", opt2: "opt2"},
+        task_name: "task_name",
+        target: "target"
+      }
 
       [{mod, _}] =
         ast
-        |> @subject.inject_task_args(quoted)
+        |> @subject.inject_task_args(task_args)
         |> Code.compile_quoted()
 
-      assert mod.hi() == "hi"
-    end
-
-    test "injects at the top of the module's body" do
-      ast =
-        Code.string_to_quoted!("""
-        defmodule Vial.UtilTest.InjectTop do
-          def hi do
-            @hi
-          end
-        end
-        """)
-
-      quoted =
-        quote do
-          @hi "hi"
-        end
-
-      [{mod, _}] =
-        ast
-        |> @subject.inject_task_args(quoted)
-        |> Code.compile_quoted()
-
-      assert mod.hi() == "hi"
+      assert mod.args == ["task_name", "target"]
+      assert mod.opts == %{opt1: "opt1", opt2: "opt2"}
+      assert mod.task_name == "task_name"
+      assert mod.target == "target"
     end
   end
 
   describe "compile" do
     test "it compiles an ast" do
-      {:ok, ast} = """
-      defmodule CompileFile do
-        def hi do
-          "hi"
+      {:ok, ast} =
+        """
+        defmodule CompileFile do
+          def hi do
+            "hi"
+          end
         end
-      end
-      """
-      |> Code.string_to_quoted()
+        """
+        |> Code.string_to_quoted()
 
       {:ok, module} = @subject.compile(ast)
 
@@ -173,7 +158,8 @@ defmodule VialTest do
     end
 
     test "returns an error if invalid" do
-      error = "invalid quoted expression: {\"invalid\"}\n\nPlease make sure your quoted expressions are made of valid AST nodes. If you would like to introduce a value into the AST, such as a four-element tuple or a map, make sure to call Macro.escape/1 before"
+      error =
+        "invalid quoted expression: {\"invalid\"}\n\nPlease make sure your quoted expressions are made of valid AST nodes. If you would like to introduce a value into the AST, such as a four-element tuple or a map, make sure to call Macro.escape/1 before"
 
       assert {:error, ^error} = @subject.compile([{"invalid"}])
     end

@@ -18,13 +18,11 @@ defmodule Vial do
     context = Context.new(vial_opts)
 
     task_args = parse_task_args(raw_task_args)
-    escaped_args = Macro.escape(task_args)
-    module_attr_ast = quote(do: @args(unquote(escaped_args)))
 
     with {:ok, path} <- get_path(vial_opts),
          {:ok, file} <- read_file(path, "#{task_args.task_name}.ex"),
          {:ok, ast} <- Code.string_to_quoted(file),
-         {:ok, ast} <- inject_task_args(ast, module_attr_ast),
+         {:ok, ast} <- inject_task_args(ast, task_args),
          {:ok, _module} <- compile(ast) do
       [task_name | raw_task_args] = raw_task_args
       Mix.Task.run(task_name, raw_task_args)
@@ -85,11 +83,23 @@ defmodule Vial do
     |> File.read()
   end
 
-  def inject_task_args(ast, quoted_args) do
+  def inject_task_args(ast, task_args) do
+    args = Macro.escape(task_args.args)
+    opts = Macro.escape(task_args.opts)
+    task_name = Macro.escape(task_args.task_name)
+    target = Macro.escape(task_args.target)
+
+    quoted = quote do
+      @args unquote(args)
+      @opts unquote(opts)
+      @task_name unquote(task_name)
+      @target unquote(target)
+    end
+
     {ast, _} =
       Macro.prewalk(ast, false, fn
         [do: block], false ->
-          {[do: [quoted_args | List.wrap(block)]], true}
+          {[do: [quoted | List.wrap(block)]], true}
 
         other, acc ->
           {other, acc}
