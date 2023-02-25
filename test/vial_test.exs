@@ -20,12 +20,10 @@ defmodule VialTest do
       task_args = @subject.parse_task_args(args)
 
       assert %{
-        _0: "some.task",
-        _1: "arg",
-        _2: "another_arg",
+        args: ["some.task", "arg", "another_arg"],
+        task_name: "some.task",
         target: "arg",
-        some: "option",
-        bool: true
+        opts: %{some: "option", bool: true}
       } = task_args
     end
 

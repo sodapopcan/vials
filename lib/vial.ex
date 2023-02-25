@@ -49,13 +49,15 @@ defmodule Vial do
         allow_nonexistent_atoms: true
       )
 
+    task_name = List.first(args)
     target = Enum.at(args, 1)
 
-    args
-    |> Enum.with_index()
-    |> Enum.map(fn {arg, index} -> {:"_#{index}", arg} end)
-    |> Enum.into(%{target: target})
-    |> Map.merge(Enum.into(opts, %{}))
+    %{
+      opts: Enum.into(opts, %{}),
+      args: args,
+      task_name: task_name,
+      target: target,
+    }
   end
 
   def get_path(_vial_opts \\ []) do
