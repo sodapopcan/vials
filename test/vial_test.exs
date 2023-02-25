@@ -38,7 +38,7 @@ defmodule VialTest do
 
   describe "get_path" do
     setup do
-      home = Application.get_env(:vial, :user_home).()
+      home = Vial.Util.user_home()
 
       remove_test_dirs = fn ->
         [

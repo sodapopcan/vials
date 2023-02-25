@@ -24,8 +24,9 @@ defmodule Vial do
          {:ok, ast} <- Code.string_to_quoted(file),
          {:ok, ast} <- inject_task_args(ast, task_args),
          {:ok, _module} <- compile(ast) do
-      [task_name | raw_task_args] = raw_task_args
-      Mix.Task.run(task_name, raw_task_args)
+      cmd = Enum.join(["mix" | raw_task_args], " ")
+      {_output, 0} = System.shell(cmd, close_stdin: true, into: IO.stream())
+
       run_actions(context, Vial.DSL.get())
     else
       {:error, message} ->
@@ -54,12 +55,12 @@ defmodule Vial do
       opts: Enum.into(opts, %{}),
       args: args,
       task_name: task_name,
-      target: target,
+      target: target
     }
   end
 
   def get_path(_vial_opts \\ []) do
-    home = Application.get_env(:vial, :user_home).()
+    home = Vial.Util.user_home()
 
     dirs = [
       System.get_env("VIALS_PATH") |> to_string(),
@@ -89,12 +90,13 @@ defmodule Vial do
     task_name = Macro.escape(task_args.task_name)
     target = Macro.escape(task_args.target)
 
-    quoted = quote do
-      @args unquote(args)
-      @opts unquote(opts)
-      @task_name unquote(task_name)
-      @target unquote(target)
-    end
+    quoted =
+      quote do
+        @args unquote(args)
+        @opts unquote(opts)
+        @task_name unquote(task_name)
+        @target unquote(target)
+      end
 
     {ast, _} =
       Macro.prewalk(ast, false, fn
@@ -112,9 +114,6 @@ defmodule Vial do
     [{module, _}] = Code.compile_quoted(ast)
 
     {:ok, module}
-  rescue
-    e ->
-      {:error, e.description}
   end
 
   defp run_actions(vial, []), do: vial
