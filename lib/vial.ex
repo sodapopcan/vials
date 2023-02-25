@@ -13,7 +13,7 @@ defmodule Vial do
     end
   end
 
-  def run(args) do
+  def main(args) do
     {vial_opts, raw_task_args} = parse_vial_opts(args)
     context = Context.new(vial_opts)
 

@@ -165,7 +165,7 @@ defmodule VialTest do
     end
   end
 
-  describe "run/1" do
+  describe "main/1" do
     setup do
       vial_dir = Path.join(~w[tmp vials])
 
@@ -196,7 +196,7 @@ defmodule VialTest do
       end
       """)
 
-      Vial.run(["run1"])
+      Vial.main(["run1"])
 
       assert File.read!(Path.join(~w[tmp example.txt])) == "example text"
     end
@@ -218,7 +218,7 @@ defmodule VialTest do
       end
       """)
 
-      Vial.run(["create.file", "file_prefix"])
+      Vial.main(["create.file", "file_prefix"])
 
       created_file = Path.join("tmp", "file_prefix_file.txt")
       assert File.read!(created_file) == "I'm some content"
@@ -243,7 +243,7 @@ defmodule VialTest do
       end
       """)
 
-      Vial.run(["conditional.create.file"])
+      Vial.main(["conditional.create.file"])
 
       refute File.exists?("tmp/file.txt")
     end
