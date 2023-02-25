@@ -13,17 +13,4 @@ defmodule Vial.Util do
     |> then(fn [d, v] -> ["{:#{d},", "\"#{v}\"}"] end)
     |> Enum.join(" ")
   end
-
-  def inject_into_module_body(ast, quoted) do
-    {ast, _} =
-      Macro.prewalk(ast, false, fn
-        [do: block], false ->
-          {[do: [quoted | List.wrap(block)]], true}
-
-        other, acc ->
-          {other, acc}
-      end)
-
-    {:ok, ast}
-  end
 end

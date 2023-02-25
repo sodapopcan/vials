@@ -24,7 +24,7 @@ defmodule Vial do
     with {:ok, path} <- get_path(vial_opts),
          {:ok, file} <- read_file(path, "#{task_args._0}.ex"),
          {:ok, ast} <- Code.string_to_quoted(file),
-         {:ok, ast} <- Vial.Util.inject_into_module_body(ast, module_attr_ast),
+         {:ok, ast} <- inject_task_args(ast, module_attr_ast),
          {:ok, _module} <- compile(ast) do
       [task_name | raw_task_args] = raw_task_args
       Mix.Task.run(task_name, raw_task_args)
@@ -81,6 +81,19 @@ defmodule Vial do
     path
     |> Path.join(filename)
     |> File.read()
+  end
+
+  def inject_task_args(ast, quoted_args) do
+    {ast, _} =
+      Macro.prewalk(ast, false, fn
+        [do: block], false ->
+          {[do: [quoted_args | List.wrap(block)]], true}
+
+        other, acc ->
+          {other, acc}
+      end)
+
+    {:ok, ast}
   end
 
   def compile(ast) do

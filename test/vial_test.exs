@@ -111,6 +111,53 @@ defmodule VialTest do
     end
   end
 
+  describe "inject_task_args" do
+    test "injects the task's args into the vial" do
+      ast =
+        Code.string_to_quoted!("""
+        defmodule Vial.UtilTest.Inject do
+        end
+        """)
+
+      quoted =
+        quote do
+          def hi do
+            "hi"
+          end
+        end
+
+      [{mod, _}] =
+        ast
+        |> @subject.inject_task_args(quoted)
+        |> Code.compile_quoted()
+
+      assert mod.hi() == "hi"
+    end
+
+    test "injects at the top of the module's body" do
+      ast =
+        Code.string_to_quoted!("""
+        defmodule Vial.UtilTest.InjectTop do
+          def hi do
+            @hi
+          end
+        end
+        """)
+
+      quoted =
+        quote do
+          @hi "hi"
+        end
+
+      [{mod, _}] =
+        ast
+        |> @subject.inject_task_args(quoted)
+        |> Code.compile_quoted()
+
+      assert mod.hi() == "hi"
+    end
+  end
+
   describe "compile" do
     test "it compiles an ast" do
       {:ok, ast} = """
