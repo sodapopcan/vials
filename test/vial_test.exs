@@ -32,7 +32,7 @@ defmodule VialTest do
 
       task_args = @subject.parse_task_args(args)
 
-      assert %{_0: "some.task", target: nil} = task_args
+      assert %{args: ["some.task"], target: nil} = task_args
     end
   end
 
@@ -228,7 +228,7 @@ defmodule VialTest do
 
         base_path "tmp"
 
-        create_file "#\{@args[:_1]}_file.txt", "I'm some content"
+        create_file "#\{@target}_file.txt", "I'm some content"
       end
       """)
 

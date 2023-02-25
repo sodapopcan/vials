@@ -22,7 +22,7 @@ defmodule Vial do
     module_attr_ast = quote(do: @args(unquote(escaped_args)))
 
     with {:ok, path} <- get_path(vial_opts),
-         {:ok, file} <- read_file(path, "#{task_args._0}.ex"),
+         {:ok, file} <- read_file(path, "#{task_args.task_name}.ex"),
          {:ok, ast} <- Code.string_to_quoted(file),
          {:ok, ast} <- inject_task_args(ast, module_attr_ast),
          {:ok, _module} <- compile(ast) do
