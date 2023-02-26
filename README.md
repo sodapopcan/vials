@@ -99,19 +99,7 @@ end
 ```
 
 As you can see, editing files is a bit crude right now, but improvements will be
-coming soon.
-
-You can also get a file's contents as a Sourceror AST:
-
-```elixir
-edit "filename.", fn ast: contents ->
-  S.postwalk(contents, fn
-    ## Perform some source-ery.
-  end)
-end
-```
-
-`Sourcery` is aliased to `S` and `Sourcery.Zipper` is aliased to `Z`.
+coming soon including being able to get the contents as a Sourceror AST.
 
 ## Experimental features
 
