@@ -1,5 +1,5 @@
-defmodule Vial do
-  defmodule VialException do
+defmodule Vials do
+  defmodule VialsException do
     defexception [:message]
   end
 
@@ -25,7 +25,7 @@ defmodule Vial do
          {:ok, ast} <- inject_task_args(ast, task_args),
          {:ok, _module} <- compile(ast) do
       # TODO: Do this with config or mox or really any other way.
-      if Vial.Env.test?() do
+      if Vials.Env.test?() do
         [task_name | raw_task_args] = raw_task_args
         Mix.Task.run(task_name, raw_task_args)
       else
@@ -33,13 +33,13 @@ defmodule Vial do
         {_output, 0} = System.shell(cmd, close_stdin: true, into: IO.stream())
       end
 
-      run_actions(context, Vial.DSL.get())
+      run_actions(context, Vials.DSL.get())
     else
       {:error, message} when is_binary(message) ->
-        raise VialException, message: message
+        raise VialsException, message: message
 
       {:error, code} when is_atom(code) ->
-        raise VialException, message: :file.format_error(code) |> to_string
+        raise VialsException, message: :file.format_error(code) |> to_string
     end
   end
 
@@ -69,7 +69,7 @@ defmodule Vial do
   end
 
   def get_path(_vial_opts \\ []) do
-    home = Vial.Util.user_home()
+    home = Vials.Util.user_home()
 
     dirs = [
       System.get_env("VIALS_PATH") |> to_string(),
@@ -131,15 +131,15 @@ defmodule Vial do
   defp run_actions(vial, []), do: vial
 
   defp run_actions(vial, [action | actions]) do
-    vial = Vial.Runner.run(vial, action)
+    vial = Vials.Runner.run(vial, action)
 
     run_actions(vial, actions)
   end
 
   defmacro __using__(_) do
     quote do
-      Vial.DSL.start_link([])
-      import Vial.DSL, except: [start_link: 1]
+      Vials.DSL.start_link([])
+      import Vials.DSL, except: [start_link: 1]
     end
   end
 end

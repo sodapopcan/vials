@@ -1,4 +1,4 @@
-defmodule Vial.Runner do
+defmodule Vials.Runner do
   def run(context, func) when is_function(func) do
     func.(context)
   end

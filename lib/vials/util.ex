@@ -1,6 +1,6 @@
-defmodule Vial.Util do
+defmodule Vials.Util do
   def user_home do
-    if Vial.Env.test?() do
+    if Vials.Env.test?() do
       "tmp"
     else
       System.user_home()

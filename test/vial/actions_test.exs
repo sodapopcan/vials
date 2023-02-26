@@ -1,7 +1,7 @@
-defmodule Vial.ActionsTest do
+defmodule Vials.ActionsTest do
   use ExUnit.Case
 
-  @subject Vial.Actions
+  @subject Vials.Actions
 
   describe "remove comments" do
     test "it removes comments from the given string" do

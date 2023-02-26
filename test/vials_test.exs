@@ -1,7 +1,7 @@
-defmodule VialTest do
+defmodule VialsTest do
   use ExUnit.Case
 
-  @subject Vial
+  @subject Vials
 
   describe "parse_vial_opts" do
     test "parses vial args from the arg list" do
@@ -38,7 +38,7 @@ defmodule VialTest do
 
   describe "get_path" do
     setup do
-      home = Vial.Util.user_home()
+      home = Vials.Util.user_home()
 
       remove_test_dirs = fn ->
         [
@@ -113,7 +113,7 @@ defmodule VialTest do
     test "injects the task's args into the vial" do
       ast =
         Code.string_to_quoted!("""
-        defmodule Vial.UtilTest.Inject do
+        defmodule Vials.UtilTest.Inject do
           def args, do: @args
           def opts, do: @opts
           def task_name, do: @task_name
@@ -191,12 +191,12 @@ defmodule VialTest do
       filename = Path.join(vial_dir, "run1.ex")
 
       File.write!(filename, """
-      defmodule Vials.Run1 do
-        use Vial
+      defmodule VialsTest.Run1 do
+        use Vials
       end
       """)
 
-      Vial.main(["run1"])
+      Vials.main(["run1"])
 
       assert File.read!(Path.join(~w[tmp example.txt])) == "example text"
     end
@@ -209,8 +209,8 @@ defmodule VialTest do
       path = Path.join(vial_dir, "create.file.ex")
 
       File.write!(path, """
-      defmodule Vials.Create.File do
-        use Vial
+      defmodule VialsTest.Create.File do
+        use Vials
 
         base_path "tmp"
 
@@ -218,7 +218,7 @@ defmodule VialTest do
       end
       """)
 
-      Vial.main(["create.file", "file_prefix"])
+      Vials.main(["create.file", "file_prefix"])
 
       created_file = Path.join("tmp", "file_prefix_file.txt")
       assert File.read!(created_file) == "I'm some content"
@@ -234,8 +234,8 @@ defmodule VialTest do
       path = Path.join(~w[#{vial_dir} conditional.create.file.ex])
 
       File.write!(path, """
-      defmodule Vials.Conditional.Create.File do
-        use Vial
+      defmodule VialsTest.Conditional.Create.File do
+        use Vials
 
         if @args[:arg_not_passed] do
           create "file.txt", "I'm some content"
@@ -243,7 +243,7 @@ defmodule VialTest do
       end
       """)
 
-      Vial.main(["conditional.create.file"])
+      Vials.main(["conditional.create.file"])
 
       refute File.exists?("tmp/file.txt")
     end
@@ -262,8 +262,8 @@ defmodule VialTest do
       File.write!(other_file, "# A comment")
 
       File.write!(Path.join(~w[#{vial_dir} remove.all.comments.ex]), """
-      defmodule Vials.Remove.All.Comments do
-        use Vial
+      defmodule VialsTest.Remove.All.Comments do
+        use Vials
 
         base_path "tmp"
 
@@ -271,7 +271,7 @@ defmodule VialTest do
       end
       """)
 
-      Vial.main(["remove.all.comments"])
+      Vials.main(["remove.all.comments"])
 
       assert File.read!(ex_file) == ""
       assert File.read!(exs_file) == ""

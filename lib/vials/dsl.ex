@@ -1,4 +1,4 @@
-defmodule Vial.DSL do
+defmodule Vials.DSL do
   use Agent
 
   def start_link([]) do
@@ -19,13 +19,13 @@ defmodule Vial.DSL do
     contents = Sourceror.to_string(ast)
 
     quote do
-      Vial.DSL.add({:create, unquote(filename), unquote(contents)})
+      Vials.DSL.add({:create, unquote(filename), unquote(contents)})
     end
   end
 
   defmacro create(filename, contents) when is_binary(contents) do
     quote do
-      Vial.DSL.add({:create, unquote(filename), unquote(contents)})
+      Vials.DSL.add({:create, unquote(filename), unquote(contents)})
     end
   end
 
@@ -50,7 +50,7 @@ defmodule Vial.DSL do
     func = fn contents ->
       [indent, last_dep] = Regex.run(last_dep_regex, contents, capture: :all_but_first)
 
-      replacement = last_dep <> ",\n#{indent}" <> Vial.Util.dep_to_string(dep)
+      replacement = last_dep <> ",\n#{indent}" <> Vials.Util.dep_to_string(dep)
       String.replace(contents, last_dep, replacement)
     end
 
@@ -58,11 +58,11 @@ defmodule Vial.DSL do
   end
 
   def remove_comments do
-    add({:edit, "**/*.{ex,exs}", &Vial.Actions.remove_comments/1})
+    add({:edit, "**/*.{ex,exs}", &Vials.Actions.remove_comments/1})
   end
 
   def remove_comments(filename_or_filenames)
       when is_binary(filename_or_filenames) or is_list(filename_or_filenames) do
-    add({:edit, filename_or_filenames, &Vial.Actions.remove_comments/1})
+    add({:edit, filename_or_filenames, &Vials.Actions.remove_comments/1})
   end
 end

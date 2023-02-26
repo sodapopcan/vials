@@ -1,18 +1,18 @@
-# Vial
+# Vials
 
 Vials of whathaveyou to add to the mix
 
 ## About
 
-Vial is a mix task that wraps other mix tasks to alter or enhance their
+Vials is a mix task that wraps other mix tasks to alter or enhance their
 behaviour.
 
 For example, here is a vial around `phx.new`:
 
 ```elixir
 # ~/.vials/phx.new.ex
-defmodule Vials.Phx.New do
-  use Vial
+defmodule Phx.New do
+  use Vials
 
   cd @arg[:_1]
 
@@ -29,7 +29,7 @@ $ mix vial phx.new my_project
 This will run `mix phx.new my_project` as normal, then `cd my_project` and
 remove the favicon.
 
-Vial files are named after their mix task name and saved in `~/.vials`,
+Vials files are named after their mix task name and saved in `~/.vials`,
 `~/vials`, or `$VIAL_PATH` (see [options](#options) for more).
 
 Positional arguments passed to the wrapped task are available as `@1`, `@2`, and
@@ -39,8 +39,8 @@ For example:
 
 ```elixir
 # ~/.vials/phx.new.ex
-defmodule Vials.Phx.New do
-  use Vial
+defmodule Phx.New do
+  use Vials
 
   cd if @args[:module], do: underscore(@args.module), else: @args._1
 
@@ -51,8 +51,8 @@ end
 
 ```elixir
 # ~/.vials/phx.new.ex
-defmodule Vials.Phx.New do
-  use Vial
+defmodule Phx.New do
+  use Vials
 
   @options [binary_id: true]
 

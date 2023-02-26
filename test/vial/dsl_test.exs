@@ -1,18 +1,18 @@
-defmodule Vial.DSLTest do
+defmodule Vials.DSLTest do
   use ExUnit.Case
 
-  require Vial.DSL
+  require Vials.DSL
 
-  @subject Vial.DSL
+  @subject Vials.DSL
 
   setup do
-    start_supervised(Vial.DSL)
+    start_supervised(Vials.DSL)
     :ok
   end
 
   describe "base_path/1" do
     test "returns vial struct with new base_path" do
-      context = %Vial.Context{base_path: "/"}
+      context = %Vials.Context{base_path: "/"}
 
       func = @subject.base_path("/some/other/dir")
       context = func.(context)
@@ -92,19 +92,19 @@ defmodule Vial.DSLTest do
   describe "remove_comments/0" do
     test "returns an edit message with a recursive glob" do
       assert @subject.remove_comments() ==
-               {:edit, "**/*.{ex,exs}", &Vial.Actions.remove_comments/1}
+               {:edit, "**/*.{ex,exs}", &Vials.Actions.remove_comments/1}
     end
   end
 
   describe "remove_comments/1" do
     test "returns an edit message with a filename" do
       assert @subject.remove_comments("foo.txt") ==
-               {:edit, "foo.txt", &Vial.Actions.remove_comments/1}
+               {:edit, "foo.txt", &Vials.Actions.remove_comments/1}
     end
 
     test "returns and edit message when given a list" do
       assert @subject.remove_comments(~w[foo.txt bar.txt]) ==
-               {:edit, ~w[foo.txt bar.txt], &Vial.Actions.remove_comments/1}
+               {:edit, ~w[foo.txt bar.txt], &Vials.Actions.remove_comments/1}
     end
   end
 end

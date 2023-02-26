@@ -1,7 +1,7 @@
-defmodule Vial.UtilTest do
+defmodule Vials.UtilTest do
   use ExUnit.Case
 
-  @subject Vial.Util
+  @subject Vials.Util
 
   describe "dep_to_string/1" do
     test "converts a dependency tuple to a string" do

@@ -1,4 +1,4 @@
-defmodule Vial.Env do
+defmodule Vials.Env do
   @env Mix.env()
 
   def prod?, do: @env == :prod

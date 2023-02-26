@@ -1,4 +1,4 @@
-defmodule Vial.MixProject do
+defmodule Vials.MixProject do
   use Mix.Project
 
   def project do
@@ -7,7 +7,7 @@ defmodule Vial.MixProject do
       version: "0.1.0",
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
-      escript: [main_module: Vial],
+      escript: [main_module: Vials],
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env())
     ]
