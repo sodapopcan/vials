@@ -90,8 +90,21 @@ defmodule Vial.DSLTest do
   end
 
   describe "remove_comments/0" do
-    test "returns and edit message with a recursive glob" do
-      assert @subject.remove_comments() == {:edit, "**/*.{ex,exs}", &Vial.Actions.remove_comments/1}
+    test "returns an edit message with a recursive glob" do
+      assert @subject.remove_comments() ==
+               {:edit, "**/*.{ex,exs}", &Vial.Actions.remove_comments/1}
+    end
+  end
+
+  describe "remove_comments/1" do
+    test "returns an edit message with a filename" do
+      assert @subject.remove_comments("foo.txt") ==
+               {:edit, "foo.txt", &Vial.Actions.remove_comments/1}
+    end
+
+    test "returns and edit message when given a list" do
+      assert @subject.remove_comments(~w[foo.txt bar.txt]) ==
+               {:edit, ~w[foo.txt bar.txt], &Vial.Actions.remove_comments/1}
     end
   end
 end

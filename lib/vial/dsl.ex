@@ -60,4 +60,9 @@ defmodule Vial.DSL do
   def remove_comments do
     add({:edit, "**/*.{ex,exs}", &Vial.Actions.remove_comments/1})
   end
+
+  def remove_comments(filename_or_filenames)
+      when is_binary(filename_or_filenames) or is_list(filename_or_filenames) do
+    add({:edit, filename_or_filenames, &Vial.Actions.remove_comments/1})
+  end
 end
