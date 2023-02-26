@@ -36,8 +36,8 @@ changing this are coming).
 Positional arguments passed to the wrapped task are available in
 a integer-indexed map as `@args` (available as `@args._0`, `@args._1`, etc)
 whereas the options map is available as `@opts`.  `@target` is set to the first
-argument given to the _mix task_ whereas, for completeness, `@task_name` is set
-to the mix task's name.
+argument given to the _mix task_ (i.e., `@args._1`) whereas, for completeness,
+`@task_name` is set to the mix task's name (i.e., @args._0).
 
 For example, with this command:
 
