@@ -11,23 +11,10 @@ defmodule Vial.Runner do
     context
   end
 
-  def run(context, {:edit, filename, func}) when is_binary(filename) and is_function(func, 1) do
-    glob = Path.join(context.base_path, filename)
-
-    with [filename] <- Path.wildcard(glob),
-         {:ok, contents} <- File.read(filename),
-         edited <- func.(contents),
-         :ok <- File.write(filename, edited) do
-      context
-    else
-      [] ->
-        %{context | errors: ["File not found: #{filename}" | context.errors]}
-
-      [_ | _] ->
-        %{context | errors: ["Globs must match exactly one file" | context.errors]}
-
-      {:error, error} ->
-        %{context | errors: [error | context.errors]}
+  def run(context, {:edit, glob, func}) when is_binary(glob) and is_function(func, 1) do
+    case context.base_path |> Path.join(glob) |> Path.wildcard() do
+      [] -> %{context | errors: ["No matches for glob \"" <> glob <> "\""]}
+      filenames -> edit(context, filenames, func)
     end
   end
 
@@ -35,5 +22,21 @@ defmodule Vial.Runner do
     path = Path.join(context.base_path, filename)
 
     File.rm(path)
+  end
+
+  defp edit(context, [], _func), do: context
+
+  defp edit(context, [filename | filenames], func) do
+    context =
+      with {:ok, contents} <- File.read(filename),
+           edited <- func.(contents),
+           :ok <- File.write(filename, edited) do
+        context
+      else
+        {:error, error} ->
+          %{context | errors: [error | context.errors]}
+      end
+
+    edit(context, filenames, func)
   end
 end

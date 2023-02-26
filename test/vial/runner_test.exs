@@ -49,25 +49,19 @@ defmodule Vial.RunnerTest do
     @tag :tmp_dir
     test "accepts globs", %{tmp_dir: tmp_dir} do
       context = %Vial.Context{base_path: tmp_dir}
-      path = Path.join(tmp_dir, "20200823000000_some_file.txt")
-      File.write!(path, "")
+
+      [file_1, file_2] =
+        ~w[20200823000000_some_file.txt 20200823000001_some_file.txt]
+        |> Enum.map(&Path.join(tmp_dir, &1))
+        |> Enum.map(fn filename ->
+          File.write!(filename, "")
+          filename
+        end)
 
       %Vial.Context{} = @subject.run(context, {:edit, "*_some_file.txt", fn _ -> "edited" end})
 
-      assert File.read!(path) == "edited"
-    end
-
-    @tag :tmp_dir
-    test "errors on multiple glob matches", %{tmp_dir: tmp_dir} do
-      context = %Vial.Context{base_path: tmp_dir}
-      path_1 = Path.join(tmp_dir, "apples_and_organes.txt")
-      path_2 = Path.join(tmp_dir, "apples_and_bananas.txt")
-      File.write!(path_1, "")
-      File.write!(path_2, "")
-
-      context = @subject.run(context, {:edit, "apples_and_*.txt", &Function.identity/1})
-
-      assert "Globs must match exactly one file" in context.errors
+      assert File.read!(file_1) == "edited"
+      assert File.read!(file_2) == "edited"
     end
 
     test "returns errors" do
@@ -75,7 +69,7 @@ defmodule Vial.RunnerTest do
 
       context = @subject.run(context, {:edit, "non-existent-file.txt", &Function.identity/1})
 
-      assert ["File not found: " <> _] = context.errors
+      assert ["No matches for glob \"non-existent-file.txt\""] = context.errors
     end
   end
 
