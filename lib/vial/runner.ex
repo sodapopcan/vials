@@ -11,6 +11,12 @@ defmodule Vial.Runner do
     context
   end
 
+  def run(context, {:edit, filenames, func}) when is_list(filenames) do
+    filenames = Enum.map(filenames, &Path.join(context.base_path, &1))
+
+    edit(context, filenames, func)
+  end
+
   def run(context, {:edit, glob, func}) when is_binary(glob) and is_function(func, 1) do
     case context.base_path |> Path.join(glob) |> Path.wildcard() do
       [] -> %{context | errors: ["No matches for glob \"" <> glob <> "\""]}

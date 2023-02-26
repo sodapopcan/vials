@@ -64,6 +64,24 @@ defmodule Vial.RunnerTest do
       assert File.read!(file_2) == "edited"
     end
 
+    @tag :tmp_dir
+    test "accepts a list", %{tmp_dir: tmp_dir} do
+      context = %Vial.Context{base_path: tmp_dir}
+
+      [file_1, file_2] =
+        ~w[file_1.txt file_1.txt]
+        |> Enum.map(&Path.join(tmp_dir, &1))
+        |> Enum.map(fn filename ->
+          File.write!(filename, "")
+          filename
+        end)
+
+      %Vial.Context{} = @subject.run(context, {:edit, ~w[file_1.txt file_2.txt], fn _ -> "edited" end})
+
+      assert File.read!(file_1) == "edited"
+      assert File.read!(file_2) == "edited"
+    end
+
     test "returns errors" do
       context = %Vial.Context{base_path: "./"}
 
