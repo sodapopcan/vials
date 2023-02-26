@@ -56,4 +56,8 @@ defmodule Vial.DSL do
 
     add({:edit, "mix.exs", func})
   end
+
+  def remove_comments do
+    add({:edit, "**/*.{ex,exs}", &Vial.Actions.remove_comments/1})
+  end
 end

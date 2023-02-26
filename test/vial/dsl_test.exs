@@ -88,4 +88,10 @@ defmodule Vial.DSLTest do
       assert func.(mix_exs) == expected
     end
   end
+
+  describe "remove_comments/0" do
+    test "returns and edit message with a recursive glob" do
+      assert @subject.remove_comments() == {:edit, "**/*.{ex,exs}", &Vial.Actions.remove_comments/1}
+    end
+  end
 end
