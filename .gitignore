@@ -26,4 +26,4 @@ vial-*.tar
 /tmp/
 
 # Executable
-vial
+./vial
