@@ -134,8 +134,8 @@ actually `cd`'ing into it.
 
 `create/2`: Creates a file.  Takes a filename and contents as strings.
 
-`edit/2`: Edits a file.  Takes a wildcard and passed the contents of all matches
-to an anonymous function.
+`edit/2`: Edits a file.  Takes a wildcard, filename, or list of filenames and
+passes the contents of each match to an anonymous function.
 
 `remove/1`: Removes a file.
 
