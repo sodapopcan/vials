@@ -261,7 +261,6 @@ defmodule VialTest do
       File.write!(exs_file, "# A comment")
       File.write!(other_file, "# A comment")
 
-
       File.write!(Path.join(~w[#{vial_dir} remove.all.comments.ex]), """
       defmodule Vials.Remove.All.Comments do
         use Vial
