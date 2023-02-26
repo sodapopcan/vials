@@ -1,130 +1,170 @@
 # Vials
 
-Vials of whathaveyou to add to the mix
+Vials are bits of code that can be seamlessly run after a mix task.
 
-## About
-
-Vials is a mix task that wraps other mix tasks to alter or enhance their
-behaviour.
+At present, the DSL is geared toward altering the output of generators, but that
+could change.
 
 For example, here is a vial around `phx.new`:
 
 ```elixir
-# ~/.vials/phx.new.ex
+# ~/vials/phx.new.ex
 defmodule Phx.New do
   use Vials
 
-  cd @arg[:_1]
+  base_path @target
 
-  remove_file "priv/static/favicon.ico"
+  remove "priv/static/favicon.ico"
 end
 ``` 
+
+Note: `@target` refers to the first argument passed to the mix task.  More info
+below.
 
 Run it with:
 
 ```bash
-$ mix vial phx.new my_project
+$ vials phx.new my_project
 ```
 
-This will run `mix phx.new my_project` as normal, then `cd my_project` and
-remove the favicon.
+Vials will load the module defined in `~/vials/phx.new.ex`, run `mix phx.new
+my_project` as normal then remove `my_project/priv/static/favicon.ico`.
 
-Vials files are named after their mix task name and saved in `~/.vials`,
-`~/vials`, or `$VIAL_PATH` (see [options](#options) for more).
+Vials are searched for in `~/vials`, `~/.vials`, or `$VIAL_PATH` (arguments for
+changing this are coming).
 
-Positional arguments passed to the wrapped task are available as `@1`, `@2`, and
-so on whereas options are available as `@option_name`.
+Positional arguments passed to the wrapped task are available in
+a integer-indexed map as `@args` (available as `@args._0`, `@args._1`, etc)
+whereas the options map is available as `@opts`.  `@target` is set to the first
+argument given to the _mix task_ whereas, for completeness, `@task_name` is set
+to the mix task's name.
 
-For example:
+For example, with this command:
 
-```elixir
-# ~/.vials/phx.new.ex
-defmodule Phx.New do
-  use Vials
-
-  cd if @args[:module], do: underscore(@args.module), else: @args._1
-
-
-end
+```bash
+$ vials phx.new my_project --module MyLongerProjectName --binary-id
 ```
 
+...we can do the following:
 
 ```elixir
-# ~/.vials/phx.new.ex
 defmodule Phx.New do
   use Vials
+  
+  base_path @target
+  
+  if @binary_id do
+    create "lib/#{@target}/schema", """
+    defmodule #{@opts.module}.Schema do
+      defmacro __using__(_) do
+        quote do
+          use Ecto.Schema, warn: false
 
-  @options [binary_id: true]
-
-  cd "{$1}"
-
-  create_file "#{@_1}/context.ex" do
-  """
-  defmodule {camelize(@1)}.Schema do
-    defmacro __using__(_) do
-      use Ecto.Schema
-
-      @primary_key {:id, :binary_id, autogenerate: true}
-      @foreign_key_type :binary_id
+          @primary_key {:id, :binary_id, autogenerate: true}
+          @foreign_key_type :binary_id
+        end
+      end
     end
-  end
-  """
-  end
-end
-```
-
-Heres are some vials around 
-
-
-For example, in phx:
-
-
-```bash
-$ mix vial -p /some/other/location/alternate-phx-new.ex mix phx.new
-```
-
-
-```bash
-$ mix vial ~/path/to/some/template/ phx.new 
-```
-
-a .vial file:
-
-```elixir
-defmodule {module}Web.Live do
-  use {}Web, :live_view
-
-  def render(assigns) do
-    ~H"""
-    Welcome to {snake}.
     """
   end
 end
 ```
 
-```elixir
-# template.vial
-include "/path/to/fs/templates"
+You could also add a vial for `ecto.gen.migration` do to play nicer with
+projects using `--binary-id`:
 
-deps do
-  add 
+```elixir
+# ~/vials/ecto.gen.migrations.ex
+defmodule Ecto.Gen.Migration do
+  use Vials
+  
+  # Don't need to set the base_path here since we run this from within our
+  # project.
+  
+  if @binary_id do
+    edit "*_{@target}.exs", fn contents ->
+      if contents =~ `def create table` do
+        String.replace(contents, ~r/def create.*/, """
+            def change table(#{@target}, primary_key: false) do
+              add :id, :binary_id, primary_key: true
+
+              timestamps()
+        """
+      else
+        contents
+      end
+    end
+  end
 end
 ```
+
+As you can see, editing files is a bit crude right now, but improvements will be
+coming soon.
+
+You can also get a file's contents as a Sourceror AST:
+
+```elixir
+edit "filename.", fn ast: contents ->
+  S.postwalk(contents, fn
+    ## Perform some source-ery.
+  end)
+end
+```
+
+`Sourcery` is aliased to `S` and `Sourcery.Zipper` is aliased to `Z`.
+
+## Experimental features
+
+I'm fairly new to AST manipulation so you'll have to bear with me.
+
+At the moment, if you pass a block to `create` you can just write straight,
+static Elixir:
+
+
+```elixir
+create "lib/some_file.ex" do
+  defmodule SomeFile do
+    def hi do
+      "hi"
+    end
+  end
+end
+```
+
+There is currently no way to inject the variable module attributes but I'm
+working on that.
+
+## Current API
+
+`base_path/1`: Sets the base path for where to look for all subsequent
+filenames.  You only need this if you are wrapping a task like `mix phx.new`
+where you want to run commands relative to the new projects root without
+actually `cd`'ing into it.
+
+`create/2`: Creates a file.  Takes a filename and contents as strings.
+
+`edit/2`: Edits a file.  Takes a wildcard and passed the contents of all matches
+to an anonymous function.
+
+`remove/1`: Removes a file.
+
+`add_dep/1`: Adds a dependency, eg: `add_dep {:some_dep, "~> 0.0.1"}`
+
+`remove_comments/0`: Removes all comments from `ex` and `exs` files.
+
+`remove_comments/1`: Takes a filename or list of filenames to remove comments
+from.
+
+## Coming soon
+
+- More DSL functions for common mix-related operations.
+- A plugin system for task-specific operations, like starting a phoenix project
+using `utc_timestamp_usec` by default, for example.
+- A way of passing an alternate directory or filename as an argument instead of
+looking for the default vial.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `vial` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:vial, "~> 0.1.0"}
-  ]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/vial>.
-
+Vials is not yet on hexpm.  You can clone the repo and build it with `mix
+escript build` from within the project's root.  This will create a `vials`
+executable which you can move to some directory in your `PATH`.
