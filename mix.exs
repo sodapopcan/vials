@@ -26,7 +26,8 @@ defmodule Vial.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:sourceror, "~> 0.12"}
+      {:sourceror, "~> 0.12"},
+      {:mox, "~> 1.0.2", only: :test}
     ]
   end
 end

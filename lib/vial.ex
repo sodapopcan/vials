@@ -24,13 +24,22 @@ defmodule Vial do
          {:ok, ast} <- Code.string_to_quoted(file),
          {:ok, ast} <- inject_task_args(ast, task_args),
          {:ok, _module} <- compile(ast) do
-      cmd = Enum.join(["mix" | raw_task_args], " ")
-      {_output, 0} = System.shell(cmd, close_stdin: true, into: IO.stream())
+      # TODO: Do this with config or mox or really any other way.
+      if Vial.Env.test?() do
+        [task_name | raw_task_args] = raw_task_args
+        Mix.Task.run(task_name, raw_task_args)
+      else
+        cmd = Enum.join(["mix" | raw_task_args], " ")
+        {_output, 0} = System.shell(cmd, close_stdin: true, into: IO.stream())
+      end
 
       run_actions(context, Vial.DSL.get())
     else
-      {:error, message} ->
+      {:error, message} when is_binary(message) ->
         raise VialException, message: message
+
+      {:error, code} when is_atom(code) ->
+        raise VialException, message: :file.format_error(code) |> to_string
     end
   end
 
@@ -114,6 +123,9 @@ defmodule Vial do
     [{module, _}] = Code.compile_quoted(ast)
 
     {:ok, module}
+  rescue
+    e ->
+      {:error, e.description}
   end
 
   defp run_actions(vial, []), do: vial

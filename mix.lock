@@ -1,3 +1,4 @@
 %{
+  "mox": {:hex, :mox, "1.0.2", "dc2057289ac478b35760ba74165b4b3f402f68803dd5aecd3bfd19c183815d64", [:mix], [], "hexpm", "f9864921b3aaf763c8741b5b8e6f908f44566f1e427b2630e89e9a73b981fef2"},
   "sourceror": {:hex, :sourceror, "0.12.1", "239a98ae2ed191528d64e079eaa355f6f1f69318dbb51796e08497dd3b24d10e", [:mix], [], "hexpm", "b5e310385813d0c791e8a481516654a4e10b7a0fdb55b4fc4ef915fbc0899b8f"},
 }

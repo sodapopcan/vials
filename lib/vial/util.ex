@@ -1,6 +1,6 @@
 defmodule Vial.Util do
   def user_home do
-    if System.get_env("MIX_ENV") == "test" do
+    if Vial.Env.test?() do
       "tmp"
     else
       System.user_home()
