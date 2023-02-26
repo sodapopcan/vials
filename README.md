@@ -84,7 +84,7 @@ defmodule Ecto.Gen.Migration do
   # Don't need to set the base_path here since we run this from within our
   # project.
   
-  if @binary_id do
+  if Path.wildcard("lib/*/schema.ex") |> Enum.any?() do
     edit "*_{@target}.exs", fn contents ->
       if contents =~ `def create table` do
         String.replace(contents, ~r/def create.*/, """
