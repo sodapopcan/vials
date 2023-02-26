@@ -1,5 +1,8 @@
 # Vials
 
+**This project is not quite ready for primetime yet.  I'm not accepting PRs at
+this time as I'm doing a bunch of refactoring.**
+
 Vials are bits of code that can be seamlessly run after a mix task.
 
 At present, the DSL is geared toward altering the output of generators, but that
