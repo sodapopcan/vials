@@ -247,5 +247,36 @@ defmodule VialTest do
 
       refute File.exists?("tmp/file.txt")
     end
+
+    test "remove_comments from all ex and exs file", %{vial_dir: vial_dir} do
+      defmodule Elixir.Mix.Tasks.Remove.All.Comments do
+        def run(_), do: nil
+      end
+
+      ex_file = Path.join(~w[tmp remove_all_comments.ex])
+      exs_file = Path.join(~w[tmp remove_all_comments.exs])
+      other_file = Path.join(~w[tmp remove_all_comments])
+
+      File.write!(ex_file, "# A comment")
+      File.write!(exs_file, "# A comment")
+      File.write!(other_file, "# A comment")
+
+
+      File.write!(Path.join(~w[#{vial_dir} remove.all.comments.ex]), """
+      defmodule Vials.Remove.All.Comments do
+        use Vial
+
+        base_path "tmp"
+
+        remove_comments()
+      end
+      """)
+
+      Vial.main(["remove.all.comments"])
+
+      assert File.read!(ex_file) == ""
+      assert File.read!(exs_file) == ""
+      assert File.read!(other_file) == "# A comment"
+    end
   end
 end
