@@ -18,7 +18,7 @@ defmodule Vial.Runner do
     end
   end
 
-  def run(context, {:delete, filename}) do
+  def run(context, {:remove, filename}) do
     path = Path.join(context.base_path, filename)
 
     File.rm(path)

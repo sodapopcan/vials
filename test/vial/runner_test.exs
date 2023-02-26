@@ -73,14 +73,14 @@ defmodule Vial.RunnerTest do
     end
   end
 
-  describe "delete action" do
+  describe "remove action" do
     @tag :tmp_dir
-    test "deletes a file", %{tmp_dir: tmp_dir} do
+    test "removes a file", %{tmp_dir: tmp_dir} do
       context = %Vial.Context{base_path: tmp_dir}
       path = Path.join(tmp_dir, "foo.txt")
       File.write!(path, "")
 
-      @subject.run(context, {:delete, "foo.txt"})
+      @subject.run(context, {:remove, "foo.txt"})
 
       assert {:error, _} = File.read(path)
     end

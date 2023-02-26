@@ -201,7 +201,7 @@ defmodule VialTest do
       assert File.read!(Path.join(~w[tmp example.txt])) == "example text"
     end
 
-    test "create_file", %{vial_dir: vial_dir} do
+    test "create", %{vial_dir: vial_dir} do
       defmodule Elixir.Mix.Tasks.Create.File do
         def run(_), do: nil
       end
@@ -214,7 +214,7 @@ defmodule VialTest do
 
         base_path "tmp"
 
-        create_file "#\{@target}_file.txt", "I'm some content"
+        create "#\{@target}_file.txt", "I'm some content"
       end
       """)
 
@@ -226,7 +226,7 @@ defmodule VialTest do
       File.rm(created_file)
     end
 
-    test "conditional create_file", %{vial_dir: vial_dir} do
+    test "conditional create", %{vial_dir: vial_dir} do
       defmodule Elixir.Mix.Tasks.Conditional.Create.File do
         def run(_), do: nil
       end
@@ -238,7 +238,7 @@ defmodule VialTest do
         use Vial
 
         if @args[:arg_not_passed] do
-          create_file "file.txt", "I'm some content"
+          create "file.txt", "I'm some content"
         end
       end
       """)

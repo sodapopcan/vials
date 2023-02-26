@@ -15,7 +15,7 @@ defmodule Vial.DSL do
     message
   end
 
-  defmacro create_file(filename, do: ast) do
+  defmacro create(filename, do: ast) do
     contents = Sourceror.to_string(ast)
 
     quote do
@@ -23,18 +23,18 @@ defmodule Vial.DSL do
     end
   end
 
-  defmacro create_file(filename, contents) when is_binary(contents) do
+  defmacro create(filename, contents) when is_binary(contents) do
     quote do
       Vial.DSL.add({:create, unquote(filename), unquote(contents)})
     end
   end
 
-  def edit_file(filename, func) do
+  def edit(filename, func) do
     add({:edit, filename, func})
   end
 
-  def delete_file(filename) do
-    add({:delete, filename})
+  def remove(filename) do
+    add({:remove, filename})
   end
 
   def base_path(path) do

@@ -21,14 +21,14 @@ defmodule Vial.DSLTest do
     end
   end
 
-  describe "create_file/2" do
+  describe "create/2" do
     test "return a create message" do
-      assert {:create, "hello.txt", "Hi there"} = @subject.create_file("hello.txt", "Hi there")
+      assert {:create, "hello.txt", "Hi there"} = @subject.create("hello.txt", "Hi there")
     end
 
     test "transforms a block to an ast" do
       {:create, _, contents} =
-        @subject.create_file "mod.ex" do
+        @subject.create "mod.ex" do
           defmodule F do
             def hi do
               "hi"
@@ -46,17 +46,17 @@ defmodule Vial.DSLTest do
     end
   end
 
-  describe "edit_file/2" do
+  describe "edit/2" do
     test "return an edit message" do
-      assert {:edit, "foo.txt", func} = @subject.edit_file("foo.txt", &(&1 <> "!"))
+      assert {:edit, "foo.txt", func} = @subject.edit("foo.txt", &(&1 <> "!"))
 
       assert func.("hi") == "hi!"
     end
   end
 
-  describe "delete_file/1" do
-    test "returns a delete message" do
-      assert {:delete, "foo.txt"} = @subject.delete_file("foo.txt")
+  describe "remove/1" do
+    test "returns a remove message" do
+      assert {:remove, "foo.txt"} = @subject.remove("foo.txt")
     end
   end
 
