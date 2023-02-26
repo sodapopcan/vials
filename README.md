@@ -56,7 +56,7 @@ defmodule Phx.New do
   
   base_path @target
   
-  if @binary_id do
+  if @opts[:binary_id] do
     create "lib/#{@target}/schema", """
     defmodule #{@opts.module}.Schema do
       defmacro __using__(_) do
