@@ -96,11 +96,25 @@ defmodule Vials.RunnerTest do
     test "removes a file", %{tmp_dir: tmp_dir} do
       context = %Vials.Context{base_path: tmp_dir}
       path = Path.join(tmp_dir, "foo.txt")
-      File.write!(path, "")
+      :ok = File.touch(path)
 
       @subject.run(context, {:remove, "foo.txt"})
 
-      assert {:error, _} = File.read(path)
+      assert {:error, :enoent} = File.read(path)
+    end
+
+    @tag :tmp_dir
+    test "accepts a glob", %{tmp_dir: tmp_dir} do
+      context = %Vials.Context{base_path: tmp_dir}
+      file_1 = Path.join(tmp_dir, "foo_1.txt")
+      file_2 = Path.join(tmp_dir, "foo_2.txt")
+      :ok = File.touch(file_1)
+      :ok = File.touch(file_2)
+
+      @subject.run(context, {:remove, "foo_*.txt"})
+
+      assert {:error, _} = File.read(file_1)
+      assert {:error, _} = File.read(file_1)
     end
   end
 end

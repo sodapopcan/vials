@@ -24,10 +24,13 @@ defmodule Vials.Runner do
     end
   end
 
-  def run(context, {:remove, filename}) do
-    path = Path.join(context.base_path, filename)
+  def run(context, {:remove, glob}) do
+    files =
+      context.base_path
+      |> Path.join(glob)
+      |> Path.wildcard()
 
-    File.rm(path)
+    for file <- files, do: :ok = File.rm(file)
   end
 
   defp edit(context, [], _func), do: context
