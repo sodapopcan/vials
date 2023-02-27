@@ -1,15 +1,23 @@
 defmodule Vials.MixProject do
   use Mix.Project
 
+  @version "0.1.0"
+  @scm_url "https://github.com/sodapopcan/vials"
+
   def project do
     [
-      app: :vial,
+      app: :vials,
+      version: @version,
       version: "0.1.0",
       elixir: "~> 1.14",
+      package: package(),
       start_permanent: Mix.env() == :prod,
       escript: [main_module: Vials],
       deps: deps(),
-      elixirc_paths: elixirc_paths(Mix.env())
+      source_url: @scm_url,
+      elixirc_paths: elixirc_paths(Mix.env()),
+      homepage_url: "https://github.com/sodapopcan/vials",
+      description: "Wrappers for mix generators"
     ]
   end
 
@@ -27,6 +35,14 @@ defmodule Vials.MixProject do
   defp deps do
     [
       {:sourceror, "~> 0.12"}
+    ]
+  end
+
+  defp package do
+    [
+      maintainers: ["Andrew Haust"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => @scm_url}
     ]
   end
 end
