@@ -1,5 +1,5 @@
 defmodule Vials.Runner do
-  def run(context, func) when is_function(func) do
+  def run(context, func) when is_function(func, 1) do
     func.(context)
   end
 
