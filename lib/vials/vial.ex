@@ -170,16 +170,7 @@ defmodule Vials.Vial do
       ```
   """
   def add_dep(dep) do
-    last_dep_regex = ~r/defp deps do.*\n(\s+)(\{:.*?})\n/s
-
-    func = fn contents ->
-      [indent, last_dep] = Regex.run(last_dep_regex, contents, capture: :all_but_first)
-
-      replacement = last_dep <> ",\n#{indent}" <> Vials.Util.dep_to_string(dep)
-      String.replace(contents, last_dep, replacement)
-    end
-
-    add({:edit, "mix.exs", func})
+    add({:edit, "mix.exs", &Vials.Actions.add_dep(&1, dep)})
   end
 
   @doc """

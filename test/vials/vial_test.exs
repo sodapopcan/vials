@@ -61,31 +61,9 @@ defmodule Vials.VialTest do
   end
 
   describe "add_dep/1" do
-    test "adds deps to deps list in mix.exs" do
-      mix_exs = """
-      defp deps do
-        [
-          {:one, "~> 0.0.3"},
-          {:two, "~> 1.1.1"},
-          {:three, "~> 1.1.1"}
-        ]
-      end
-      """
-
-      {:edit, "mix.exs", func} = @subject.add_dep({:four, "~> 0.0.1"})
-
-      expected = """
-      defp deps do
-        [
-          {:one, "~> 0.0.3"},
-          {:two, "~> 1.1.1"},
-          {:three, "~> 1.1.1"},
-          {:four, "~> 0.0.1"}
-        ]
-      end
-      """
-
-      assert func.(mix_exs) == expected
+    test "returns an edit messages" do
+      assert {:edit, "mix.exs", func} = @subject.add_dep({:some_dep, "~> 0.0.0"})
+      assert is_function(func, 1)
     end
   end
 

@@ -18,10 +18,35 @@ defmodule Vials.ActionsTest do
       result = @subject.remove_comments(string)
 
       assert result == """
-      def some_code(a_fn_with_args) do
-        do_the_thing_to(a_fn_with_args)
-      end
-      """
+             def some_code(a_fn_with_args) do
+               do_the_thing_to(a_fn_with_args)
+             end
+             """
     end
+  end
+
+  test "adds deps to deps list in mix.exs" do
+    mix_exs = """
+    defp deps do
+      [
+        {:one, "~> 0.0.3"},
+        {:two, "~> 1.1.1"},
+        {:three, "~> 1.1.1"}
+      ]
+    end
+    """
+
+    result = @subject.add_dep(mix_exs, {:four, "~> 0.0.1"})
+
+    assert result == """
+    defp deps do
+      [
+        {:one, "~> 0.0.3"},
+        {:two, "~> 1.1.1"},
+        {:three, "~> 1.1.1"},
+        {:four, "~> 0.0.1"}
+      ]
+    end
+    """
   end
 end
