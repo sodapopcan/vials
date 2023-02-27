@@ -12,25 +12,33 @@ defmodule Vials.Runner do
   end
 
   def run(context, {:edit, filenames, func}) when is_list(filenames) do
-    filenames = Enum.map(filenames, &Path.join(context.base_path, &1))
-
     edit(context, filenames, func)
   end
 
   def run(context, {:edit, glob, func}) when is_binary(glob) and is_function(func, 1) do
-    case context.base_path |> Path.join(glob) |> Path.wildcard() do
-      [] -> %{context | errors: ["No matches for glob \"" <> glob <> "\""]}
-      filenames -> edit(context, filenames, func)
-    end
+    edit(context, glob, func)
   end
 
   def run(context, {:remove, glob_or_list}) do
     remove(context, glob_or_list)
   end
 
-  defp edit(context, [], _func), do: context
+  defp edit(context, filenames, func) when is_list(filenames) do
+    filenames = Enum.map(filenames, &Path.join(context.base_path, &1))
 
-  defp edit(context, [filename | filenames], func) do
+    do_edit(context, filenames, func)
+  end
+
+  defp edit(context, glob, func) do
+    case context.base_path |> Path.join(glob) |> Path.wildcard() do
+      [] -> %{context | errors: ["No matches for glob \"" <> glob <> "\""]}
+      filenames -> do_edit(context, filenames, func)
+    end
+  end
+
+  defp do_edit(context, [], _func), do: context
+
+  defp do_edit(context, [filename | filenames], func) do
     context =
       with {:ok, contents} <- File.read(filename),
            edited <- func.(contents),
@@ -41,7 +49,7 @@ defmodule Vials.Runner do
           %{context | errors: [error | context.errors]}
       end
 
-    edit(context, filenames, func)
+    do_edit(context, filenames, func)
   end
 
   defp remove(context, list) when is_list(list) do
