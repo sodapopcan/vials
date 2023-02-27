@@ -1,4 +1,6 @@
 defmodule Vials.Util do
+  @moduledoc false
+
   def user_home do
     if Vials.Env.test?() do
       "tmp"

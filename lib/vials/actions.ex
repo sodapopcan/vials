@@ -1,4 +1,6 @@
 defmodule Vials.Actions do
+  @moduledoc false
+
   def remove_comments(string) do
     string
     |> String.split("\n")

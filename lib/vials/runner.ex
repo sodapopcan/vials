@@ -1,4 +1,6 @@
 defmodule Vials.Runner do
+  @moduledoc false
+
   def run(context, func) when is_function(func, 1) do
     func.(context)
   end
