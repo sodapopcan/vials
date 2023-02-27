@@ -24,13 +24,8 @@ defmodule Vials.Runner do
     end
   end
 
-  def run(context, {:remove, glob}) do
-    files =
-      context.base_path
-      |> Path.join(glob)
-      |> Path.wildcard()
-
-    for file <- files, do: :ok = File.rm(file)
+  def run(context, {:remove, glob_or_list}) do
+    remove(context, glob_or_list)
   end
 
   defp edit(context, [], _func), do: context
@@ -47,5 +42,18 @@ defmodule Vials.Runner do
       end
 
     edit(context, filenames, func)
+  end
+
+  defp remove(context, list) when is_list(list) do
+    for glob <- list, do: remove(context, glob)
+  end
+
+  defp remove(context, glob) do
+    files =
+      context.base_path
+      |> Path.join(glob)
+      |> Path.wildcard()
+
+    for file <- files, do: :ok = File.rm(file)
   end
 end

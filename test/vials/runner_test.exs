@@ -116,5 +116,22 @@ defmodule Vials.RunnerTest do
       assert {:error, _} = File.read(file_1)
       assert {:error, _} = File.read(file_1)
     end
+
+    @tag :tmp_dir
+    test "accepts a list of file and/or globs", %{tmp_dir: tmp_dir} do
+      context = %Vials.Context{base_path: tmp_dir}
+      file_1 = Path.join(tmp_dir, "foo.txt")
+      file_2 = Path.join(tmp_dir, "bar_1.txt")
+      file_3 = Path.join(tmp_dir, "bar_1.txt")
+      :ok = File.touch(file_1)
+      :ok = File.touch(file_2)
+      :ok = File.touch(file_3)
+
+      @subject.run(context, {:remove, ~w[foo.txt bar_*.txt]})
+
+      assert {:error, _} = File.read(file_1)
+      assert {:error, _} = File.read(file_2)
+      assert {:error, _} = File.read(file_3)
+    end
   end
 end
