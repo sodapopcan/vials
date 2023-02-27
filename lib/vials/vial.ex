@@ -1,4 +1,4 @@
-defmodule Vials.DSL do
+defmodule Vials.Vial do
   use Agent
 
   def start_link([]) do
@@ -19,13 +19,13 @@ defmodule Vials.DSL do
     contents = Sourceror.to_string(ast)
 
     quote do
-      Vials.DSL.add({:create, unquote(filename), unquote(contents)})
+      Vials.Vial.add({:create, unquote(filename), unquote(contents)})
     end
   end
 
   defmacro create(filename, contents) when is_binary(contents) do
     quote do
-      Vials.DSL.add({:create, unquote(filename), unquote(contents)})
+      Vials.Vial.add({:create, unquote(filename), unquote(contents)})
     end
   end
 

@@ -33,7 +33,7 @@ defmodule Vials do
         {_output, 0} = System.shell(cmd, close_stdin: true, into: IO.stream())
       end
 
-      run_actions(context, Vials.DSL.get())
+      run_actions(context, Vials.Vial.get())
     else
       {:error, message} when is_binary(message) ->
         raise VialsException, message: message
@@ -138,8 +138,8 @@ defmodule Vials do
 
   defmacro __using__(_) do
     quote do
-      Vials.DSL.start_link([])
-      import Vials.DSL, except: [start_link: 1]
+      Vials.Vial.start_link([])
+      import Vials.Vial, except: [start_link: 1]
     end
   end
 end

@@ -1,12 +1,12 @@
-defmodule Vials.DSLTest do
+defmodule Vials.VialTest do
   use ExUnit.Case
 
-  require Vials.DSL
+  require Vials.Vial
 
-  @subject Vials.DSL
+  @subject Vials.Vial
 
   setup do
-    start_supervised(Vials.DSL)
+    start_supervised(Vials.Vial)
     :ok
   end
 
