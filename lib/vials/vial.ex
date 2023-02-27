@@ -44,13 +44,13 @@ defmodule Vials.Vial do
 
   ## Example
 
-  ```elixir
-   defmodule Vial do
-     use Vials
+      ```elixir
+      defmodule Vial do
+        use Vials
 
-     create "tmp/example_file.txt", "Hi there!"
-  end
-  ```
+        create "tmp/example_file.txt", "Hi there!"
+      end
+      ```
 
   The content may also be passed as a block of Elixir code which will be
   converted into a string:
@@ -161,13 +161,13 @@ defmodule Vials.Vial do
 
   ## Example
 
-  ```elixir
-  defmodule Vial do
-    use Vials
+      ```elixir
+      defmodule Vial do
+        use Vials
 
-    add_dep {:some_dep, "~> 1.0.0"}
-  end
-  ```
+        add_dep {:some_dep, "~> 1.0.0"}
+      end
+      ```
   """
   def add_dep(dep) do
     last_dep_regex = ~r/defp deps do.*\n(\s+)(\{:.*?})\n/s
