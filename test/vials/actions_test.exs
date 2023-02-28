@@ -9,6 +9,10 @@ defmodule Vials.ActionsTest do
       # I'm a comment
       # and I continue on
       # with commenting
+      @doc """
+      ## Examples
+      # Comment in docstring
+      \"""
       def some_code(a_fn_with_args) do
         # I'm commenting again why not
         do_the_thing_to(a_fn_with_args)
@@ -18,10 +22,14 @@ defmodule Vials.ActionsTest do
       result = @subject.remove_comments(string)
 
       assert result == """
-             def some_code(a_fn_with_args) do
-               do_the_thing_to(a_fn_with_args)
-             end
-             """
+            @doc """
+            ## Examples
+            # Comment in docstring
+            \"""
+            def some_code(a_fn_with_args) do
+              do_the_thing_to(a_fn_with_args)
+            end
+            """
     end
   end
 
@@ -39,14 +47,14 @@ defmodule Vials.ActionsTest do
     result = @subject.add_dep(mix_exs, {:four, "~> 0.0.1"})
 
     assert result == """
-    defp deps do
-      [
-        {:one, "~> 0.0.3"},
-        {:two, "~> 1.1.1"},
-        {:three, "~> 1.1.1"},
-        {:four, "~> 0.0.1"}
-      ]
-    end
-    """
+           defp deps do
+             [
+               {:one, "~> 0.0.3"},
+               {:two, "~> 1.1.1"},
+               {:three, "~> 1.1.1"},
+               {:four, "~> 0.0.1"}
+             ]
+           end
+           """
   end
 end

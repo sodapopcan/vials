@@ -4,7 +4,16 @@ defmodule Vials.Actions do
   def remove_comments(string) do
     string
     |> String.split("\n")
-    |> Enum.reject(& &1 =~ ~r/\A(\s+)?#/)
+    |> Enum.reduce({[], false}, fn line, {lines, in_doc?} ->
+      cond do
+        line =~ ~r/@.*"""\z/ -> {[line | lines], true}
+        line =~ ~r/"""\z/ -> {[line | lines], false}
+        line =~ ~r/\A(\s+)?#/ and not in_doc? -> {lines, in_doc?}
+        true -> {[line | lines], in_doc?}
+      end
+    end)
+    |> then(fn {lines, _} -> lines end)
+    |> Enum.reverse()
     |> Enum.join("\n")
   end
 
