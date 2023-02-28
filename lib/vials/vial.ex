@@ -96,7 +96,7 @@ defmodule Vials.Vial do
       ```elixir
       defmodule Vial do
         use Vials
-      
+
         edit "foo.txt", fn contents ->
           String.replace(contents, "def bar", "def baz")
         end

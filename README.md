@@ -30,7 +30,7 @@ Run it with:
 $ vials phx.new my_project
 ```
 
-Vials will load the module defined in `~/vials/phx.new.ex`, run `mix phx.new
+Vials will load the module defined in `~/vials/phx.new.ex`, run `$ mix phx.new
 my_project` as normal then remove `my_project/priv/static/favicon.ico`.
 
 Vials are searched for in `~/vials`, `~/.vials`, or `$VIAL_PATH` (arguments for
