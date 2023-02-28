@@ -13,8 +13,8 @@ defmodule Vials.Runner do
     context
   end
 
-  def run(context, {:edit, filenames, func}) when is_list(filenames) do
-    edit(context, filenames, func)
+  def run(context, {:edit, globs, func}) when is_list(globs) do
+    edit(context, globs, func)
   end
 
   def run(context, {:edit, glob, func}) when is_binary(glob) and is_function(func, 1) do
@@ -25,10 +25,10 @@ defmodule Vials.Runner do
     remove(context, glob_or_list)
   end
 
-  defp edit(context, filenames, func) when is_list(filenames) do
-    filenames = Enum.map(filenames, &Path.join(context.base_path, &1))
+  defp edit(context, globs, func) when is_list(globs) do
+    globs = Enum.map(globs, &Path.join(context.base_path, &1))
 
-    do_edit(context, filenames, func)
+    do_edit(context, globs, func)
   end
 
   defp edit(context, glob, func) do
