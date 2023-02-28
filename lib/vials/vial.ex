@@ -2,7 +2,7 @@ defmodule Vials.Vial do
   @moduledoc """
   Defines the DSL available in your vials.
 
-  This module is what is impoorted into your vials when you `use Vials`.
+  This module is what is imported into your vials when you `use Vials`.
 
   These functions don't perform any system IO and instead store a list of
   messages to be processed by the `Runner`.
