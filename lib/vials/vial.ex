@@ -9,13 +9,13 @@ defmodule Vials.Vial do
 
   They will emit one of the following messages:
 
+  ```elixir
   {:create, glob, func/1}
   {:edit, filename, func/1}
   {:remove, glob}
   {:move, glob, dest}
   func/1
-
-  These message are processed by the `Runner`.
+  ```
 
   When a message is a bare, single-arity function, the `Runner` will invoke it
   passing a `%Context{}`.  See `base_path` for an example.
@@ -106,7 +106,6 @@ defmodule Vials.Vial do
   def edit(glob, func) do
     add({:edit, glob, func})
   end
-
 
   @doc """
   Add a remove file message.
