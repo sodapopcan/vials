@@ -1,9 +1,9 @@
 defmodule Vials.Actions do
   @moduledoc false
 
-  def remove_comments(string) do
+  def remove_comments(source) do
     {ast, _comments} =
-      string
+      source
       |> Sourceror.parse_string!()
       |> Sourceror.Comments.extract_comments()
 
