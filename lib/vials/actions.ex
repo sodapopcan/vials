@@ -12,7 +12,7 @@ defmodule Vials.Actions do
         true -> {[line | lines], in_doc?}
       end
     end)
-    |> then(fn {lines, _} -> lines end)
+    |> elem(0)
     |> Enum.reverse()
     |> Enum.join("\n")
   end
