@@ -1,9 +1,12 @@
 defmodule Vials do
+  @moduledoc """
+  """
   defmodule VialsException do
     defexception [:message]
   end
 
   defmodule Context do
+    @moduledoc false
     defstruct base_path: File.cwd!(),
               errors: [],
               log: []
