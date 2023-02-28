@@ -10,12 +10,37 @@ defmodule Vials.Actions do
     Sourceror.to_string(ast) <> "\n"
   end
 
-  def add_dep(file_contents, dep) do
-    last_dep_regex = ~r/defp deps do.*\n(\s+)(\{:.*?})\n/s
+  def add_dep(source, dep) do
+    ast =
+      source
+      |> Sourceror.parse_string!()
+      |> Sourceror.postwalk(fn
+        {:defp, meta, [{:deps, _, _} = fun, body]}, state ->
+          [{{_, _, [:do]}, block_ast}] = body
+          {:__block__, block_meta, [deps]} = block_ast
 
-    [indent, last_dep] = Regex.run(last_dep_regex, file_contents, capture: :all_but_first)
+          dep_line =
+            case List.last(deps) do
+              {_, meta, _} ->
+                meta[:line] || block_meta[:line]
 
-    replacement = last_dep <> ",\n#{indent}" <> Vials.Util.dep_to_string(dep)
-    String.replace(file_contents, last_dep, replacement)
+              _ ->
+                block_meta[:line]
+            end + 1
+
+          deps =
+            deps ++
+              [
+                {:__block__, [line: dep_line], [dep]}
+              ]
+
+          ast = {:defp, meta, [fun, [do: {:__block__, block_meta, [deps]}]]}
+          {ast, state}
+
+        other, state ->
+          {other, state}
+      end)
+
+    Sourceror.to_string(ast) <> "\n"
   end
 end
