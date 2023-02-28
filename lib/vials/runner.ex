@@ -55,7 +55,7 @@ defmodule Vials.Runner do
   end
 
   defp remove(context, list) when is_list(list) do
-    for glob <- list, do: remove(context, glob)
+    Enum.each(list, &remove(context, &1))
   end
 
   defp remove(context, glob) do
