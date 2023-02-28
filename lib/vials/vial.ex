@@ -13,12 +13,12 @@ defmodule Vials.Vial do
   {:edit, filename, func/1}
   {:remove, glob}
   {:move, glob, dest}
-  fun/1
+  func/1
 
   These message are processed by the `Runner`.
 
-  When a message is a bare, single-arity function is passed, the `Runner` will
-  invoke it passing the `%Context{}`.  See `base_path` for an example.
+  When a message is a bare, single-arity function, the `Runner` will invoke it
+  passing a `%Context{}`.  See `base_path` for an example.
   """
 
   use Agent
