@@ -19,7 +19,7 @@ defmodule Phx.New do
 
   remove "priv/static/favicon.ico"
 end
-``` 
+```
 
 Note: `@target` refers to the first argument passed to the mix task.  More info
 below.
@@ -53,9 +53,9 @@ $ vials phx.new my_project --module MyLongerProjectName --binary-id
 ```elixir
 defmodule Phx.New do
   use Vials
-  
+
   base_path @target
-  
+
   if @opts[:binary_id] do
     create "lib/#{@target}/schema", """
     defmodule #{@opts.module}.Schema do
@@ -80,10 +80,10 @@ projects using `--binary-id`:
 # ~/vials/ecto.gen.migrations.ex
 defmodule Ecto.Gen.Migration do
   use Vials
-  
+
   # Don't need to set the base_path here since we run this from within our
   # project.
-  
+
   if Path.wildcard("lib/*/schema.ex") |> Enum.any?() do
     edit "*_{@target}.exs", fn contents ->
       if contents =~ `def create table` do
