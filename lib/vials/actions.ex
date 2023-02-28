@@ -1,14 +1,18 @@
 defmodule Vials.Actions do
   @moduledoc false
 
+  @doc_start ~r/@.*"""\z/
+  @doc_end ~r/"""\z/
+  @comment ~r/\A(\s+)?#/
+
   def remove_comments(string) do
     string
     |> String.split("\n")
     |> Enum.reduce({[], false}, fn line, {lines, in_doc?} ->
       cond do
-        line =~ ~r/@.*"""\z/ -> {[line | lines], true}
-        line =~ ~r/"""\z/ -> {[line | lines], false}
-        line =~ ~r/\A(\s+)?#/ and not in_doc? -> {lines, in_doc?}
+        line =~ @doc_start -> {[line | lines], true}
+        line =~ @doc_end -> {[line | lines], false}
+        line =~ @comment and not in_doc? -> {lines, in_doc?}
         true -> {[line | lines], in_doc?}
       end
     end)
