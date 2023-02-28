@@ -5,31 +5,31 @@ defmodule Vials.ActionsTest do
 
   describe "remove comments" do
     test "it removes comments from the given string" do
-      string = """
+      string = ~S'''
       # I'm a comment
       # and I continue on
       # with commenting
       @doc """
       ## Examples
       # Comment in docstring
-      \"""
+      """
       def some_code(a_fn_with_args) do
         # I'm commenting again why not
         do_the_thing_to(a_fn_with_args)
       end
-      """
+      '''
 
       result = @subject.remove_comments(string)
 
-      assert result == """
+      assert result == ~S'''
             @doc """
             ## Examples
             # Comment in docstring
-            \"""
+            """
             def some_code(a_fn_with_args) do
               do_the_thing_to(a_fn_with_args)
             end
-            """
+            '''
     end
   end
 
