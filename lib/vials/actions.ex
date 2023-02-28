@@ -1,10 +1,6 @@
 defmodule Vials.Actions do
   @moduledoc false
 
-  @doc_start ~r/@.*"""\z/
-  @doc_end ~r/"""\z/
-  @comment ~r/\A(\s+)?#/
-
   def remove_comments(string) do
     {ast, _comments} =
       string
