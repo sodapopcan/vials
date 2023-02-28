@@ -34,7 +34,8 @@ defmodule Vials.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:sourceror, "~> 0.12"}
+      {:sourceror, "~> 0.12"},
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
     ]
   end
 
