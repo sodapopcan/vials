@@ -7,7 +7,7 @@ defmodule Vials.Actions do
       |> Sourceror.parse_string!()
       |> Sourceror.Comments.extract_comments()
 
-    Sourceror.to_string(ast) <> "\n"
+    Sourceror.to_string(ast)
   end
 
   def add_dep(source, dep) do
@@ -41,6 +41,6 @@ defmodule Vials.Actions do
           {other, state}
       end)
 
-    Sourceror.to_string(ast) <> "\n"
+    Sourceror.to_string(ast)
   end
 end
