@@ -22,14 +22,14 @@ defmodule Vials.ActionsTest do
       result = @subject.remove_comments(string)
 
       assert result == ~S'''
-            @doc """
-            ## Examples
-            # Comment in docstring
-            """
-            def some_code(a_fn_with_args) do
-              do_the_thing_to(a_fn_with_args)
-            end
-            '''
+             @doc """
+             ## Examples
+             # Comment in docstring
+             """
+             def some_code(a_fn_with_args) do
+               do_the_thing_to(a_fn_with_args)
+             end
+             '''
     end
   end
 
